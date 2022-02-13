@@ -30,7 +30,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
     func test_load_deliversErrorOnClientError() {
         let (sut, client) = makeSUT()
 
-        var capturedError = [RemoteFeedLoader.Error?]()
+        var capturedError = [RemoteFeedLoader.Error]()
         sut.load { capturedError.append($0) }
 
         let clientError = NSError(domain: "test", code: 0, userInfo: nil)
@@ -42,12 +42,14 @@ final class RemoteFeedLoaderTests: XCTestCase {
     func test_load_deliversErrorOnNonHTTPResponse() {
         let (sut, client) = makeSUT()
 
-        var capturedError = [RemoteFeedLoader.Error?]()
-        sut.load { capturedError.append($0) }
+        let samples = [199, 201, 400, 500]
+        samples.enumerated().forEach { index, code in
+            var capturedErrors = [RemoteFeedLoader.Error]()
+            sut.load { capturedErrors.append($0) }
 
-        client.complete(statusCode: 400, at: 0)
-
-        XCTAssertEqual(capturedError, [.invalidData])
+            client.complete(statusCode: code, at: index)
+            XCTAssertEqual(capturedErrors, [.invalidData])
+        }
     }
 
     // MARK: - Helpers
@@ -61,7 +63,6 @@ final class RemoteFeedLoaderTests: XCTestCase {
 
     private class HTTPClientSpy: HTTPClient {
         var messages = [(url: URL, completion: (Error?, HTTPURLResponse?) -> Void)]()
-        var statusCode: Int?
 
         var requestedUrls: [URL] {
             messages.map { $0.url }
@@ -82,7 +83,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
                 httpVersion: nil,
                 headerFields: nil)
 
-            messages[0].completion(nil, response)
+            messages[index].completion(nil, response)
         }
     }
 }
