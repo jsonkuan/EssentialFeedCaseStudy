@@ -30,13 +30,10 @@ final class RemoteFeedLoaderTests: XCTestCase {
     func test_load_deliversErrorOnClientError() {
         let (sut, client) = makeSUT()
 
-        var capturedError = [RemoteFeedLoader.Error]()
-        sut.load { capturedError.append($0) }
-
-        let clientError = NSError(domain: "test", code: 0, userInfo: nil)
-        client.complete(with: clientError, at: 0)
-
-        XCTAssertEqual(capturedError, [.connectivity])
+        expect(sut: sut, toCompleteWithError: .connectivity) {
+            let clientError = NSError(domain: "test", code: 0, userInfo: nil)
+            client.complete(with: clientError, at: 0)
+        }
     }
 
     func test_load_deliversErrorOnNonHTTPResponse() {
@@ -44,24 +41,19 @@ final class RemoteFeedLoaderTests: XCTestCase {
 
         let samples = [199, 201, 400, 500]
         samples.enumerated().forEach { index, code in
-            var capturedErrors = [RemoteFeedLoader.Error]()
-            sut.load { capturedErrors.append($0) }
-
-            client.complete(statusCode: code, at: index)
-            XCTAssertEqual(capturedErrors, [.invalidData])
+            expect(sut: sut, toCompleteWithError: .invalidData) {
+                client.complete(statusCode: code, at: index)
+            }
         }
     }
 
     func test_load_deliversErrorOn200HTTPResponseWithInvalidJSON() {
         let (sut, client) = makeSUT()
 
-        var capturedError = [RemoteFeedLoader.Error]()
-        sut.load { capturedError.append($0) }
-
-        let invalidJSON = Data("Invalid json".utf8)
-        client.complete(statusCode: 200, data: invalidJSON)
-
-        XCTAssertEqual(capturedError, [.invalidData])
+        expect(sut: sut, toCompleteWithError: .invalidData) {
+            let invalidJSON = Data("Invalid json".utf8)
+            client.complete(statusCode: 200, data: invalidJSON)
+        }
     }
 
     // MARK: - Helpers
@@ -73,29 +65,45 @@ final class RemoteFeedLoaderTests: XCTestCase {
         return (RemoteFeedLoader(url: url, client: client), client)
     }
 
-    private class HTTPClientSpy: HTTPClient {
-        var messages = [(url: URL, completion: (HTTPClientResult) -> Void)]()
+    private func expect(
+        sut: RemoteFeedLoader,
+        toCompleteWithError error: RemoteFeedLoader.Error,
+        when action: () -> Void,
+        file: StaticString = #filePath, line: UInt = #line) {
 
-        var requestedUrls: [URL] {
-            messages.map { $0.url }
-        }
+        var capturedErrors = [RemoteFeedLoader.Error]()
+        sut.load { capturedErrors.append($0) }
 
-        func get(from url: URL, _ completion: @escaping (HTTPClientResult) -> Void) {
-            messages.append((url, completion))
-        }
+        action()
 
-        func complete(with error: Error, at index: Int) {
-            messages[index].completion(.failure(error))
-        }
+        XCTAssertEqual(capturedErrors, [error], file: file, line: line)
+    }
+}
 
-        func complete(statusCode: Int, data: Data = Data(), at index: Int = 0 ) {
-            let response = HTTPURLResponse(
-                url: requestedUrls[index],
-                statusCode: statusCode,
-                httpVersion: nil,
-                headerFields: nil)!
+// MARK: - Spy
 
-            messages[index].completion(.success(data, response))
-        }
+private class HTTPClientSpy: HTTPClient {
+    var messages = [(url: URL, completion: (HTTPClientResult) -> Void)]()
+
+    var requestedUrls: [URL] {
+        messages.map { $0.url }
+    }
+
+    func get(from url: URL, _ completion: @escaping (HTTPClientResult) -> Void) {
+        messages.append((url, completion))
+    }
+
+    func complete(with error: Error, at index: Int) {
+        messages[index].completion(.failure(error))
+    }
+
+    func complete(statusCode: Int, data: Data = Data(), at index: Int = 0 ) {
+        let response = HTTPURLResponse(
+            url: requestedUrls[index],
+            statusCode: statusCode,
+            httpVersion: nil,
+            headerFields: nil)!
+
+        messages[index].completion(.success(data, response))
     }
 }
