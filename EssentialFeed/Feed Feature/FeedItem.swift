@@ -1,8 +1,8 @@
 import Foundation
 
-struct FeedItem: Equatable {
-    let id: String
-    let description: String? = nil
-    let location: String? = nil
-    let imageUrl: URL
+public struct FeedItem: Equatable {
+    public let id: String
+    public let description: String? = nil
+    public let location: String? = nil
+    public let imageUrl: URL
 }
