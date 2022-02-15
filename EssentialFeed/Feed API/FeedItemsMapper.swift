@@ -12,7 +12,7 @@ class FeedItemsMapper {
         let items: [Item]
     }
 
-    public struct Item: Decodable {
+    private struct Item: Decodable {
         public let id: UUID
         public let description: String?
         public let location: String?
