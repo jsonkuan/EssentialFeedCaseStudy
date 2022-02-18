@@ -23,7 +23,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
 
         let url = URL(string: "https://test.com")!
         let error = NSError(domain: "SomeError", code: 0)
-        URLProtocolStub.stub(with: error)
+        URLProtocolStub.stub(data: nil, response: nil, error: error)
 
         let sut = URLSessionHTTPClient()
 
@@ -47,17 +47,18 @@ final class URLSessionHTTPClientTests: XCTestCase {
     // MARK: - Stub
 
     private class URLProtocolStub: URLProtocol {
-        private static var stubs = [Stub]()
-
+        private static var stub: Stub?
+        
         private struct Stub {
+            let data: Data?
+            let response: URLResponse?
             let error: Error?
         }
 
         // MARK: - Helpers
 
-        static func stub(with error: Error? = nil) {
-            let stub = Stub(error: error)
-            URLProtocolStub.stubs.append(stub)
+        static func stub(data: Data?, response: URLResponse?, error: Error?) {
+            stub = Stub(data: data, response: response, error: error)
         }
 
         static func startInterceptingRequests() {
@@ -66,7 +67,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
 
         static func stopInterceptingRequests() {
             URLProtocol.unregisterClass(URLProtocolStub.self)
-            stubs.removeAll()
+            stub = nil
         }
 
         // MARK: - URL Protocol
@@ -80,7 +81,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
         }
 
         override func startLoading() {
-            if let error = URLProtocolStub.stubs[0].error {
+            if let error = URLProtocolStub.stub?.error {
                 client?.urlProtocol(self, didFailWithError: error)
             }
 
