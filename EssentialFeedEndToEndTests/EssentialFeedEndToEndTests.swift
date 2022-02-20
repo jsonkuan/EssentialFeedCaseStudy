@@ -4,20 +4,7 @@ import EssentialFeed
 final class EssentialFeedEndToEndTests: XCTestCase {
 
     func test_EndtoEndTestServerGETFeedResult_matchesFixedTestAccountdata() {
-        let testServerURL = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")!
-        let client = URLSessionHTTPClient()
-        let sut = RemoteFeedLoader(url: testServerURL, client: client)
-        
-        let exp = XCTestExpectation(description: "Wait for completion")
-        var receivedResult: LoadFeedResult?
-        sut.load { result in
-            receivedResult = result
-            exp.fulfill()
-        }
-        
-        wait(for: [exp], timeout: 5.0)
-    
-        switch receivedResult {
+        switch getFeedResult() {
         case let .success(items)?:
             XCTAssertEqual(items.count, 8, "Expected 8 items in the test account feed")
             XCTAssertEqual(items[0], expectedItem(at: 0))
@@ -29,16 +16,32 @@ final class EssentialFeedEndToEndTests: XCTestCase {
             XCTAssertEqual(items[5], expectedItem(at: 5))
             XCTAssertEqual(items[6], expectedItem(at: 6))
             XCTAssertEqual(items[7], expectedItem(at: 7))
-            
+
         case let .failure(error)?:
             XCTFail("Expected to succeed, but failed with \(error)")
         default:
             XCTFail("Expected to succeed, but failed")
         }
     }
-    
+
+    private func getFeedResult() -> LoadFeedResult? {
+        let testServerURL = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")!
+        let client = URLSessionHTTPClient()
+        let sut = RemoteFeedLoader(url: testServerURL, client: client)
+
+        let exp = XCTestExpectation(description: "Wait for completion")
+        var receivedResult: LoadFeedResult?
+        sut.load { result in
+            receivedResult = result
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 5.0)
+        return receivedResult
+    }
+
     // MARK: - Helpers
-    
+
     private func expectedItem(at index: Int) -> FeedItem {
         return FeedItem(
             id: id(at: index),
@@ -47,7 +50,7 @@ final class EssentialFeedEndToEndTests: XCTestCase {
             imageUrl: imageURL(at: index)
         )
     }
-    
+
     private func id(at index: Int) -> UUID {
         return UUID(uuidString: [
             "73A7F70C-75DA-4C2E-B5A3-EED40DC53AA6",
@@ -60,7 +63,7 @@ final class EssentialFeedEndToEndTests: XCTestCase {
             "F79BD7F8-063F-46E2-8147-A67635C3BB01"
         ][index])!
     }
-    
+
     private func description(at index: Int) -> String? {
         return [
             "Description 1",
@@ -73,7 +76,7 @@ final class EssentialFeedEndToEndTests: XCTestCase {
             "Description 8"
         ][index]
     }
-    
+
     private func location(at index: Int) -> String? {
         return [
             "Location 1",
@@ -86,9 +89,8 @@ final class EssentialFeedEndToEndTests: XCTestCase {
             "Location 8"
         ][index]
     }
-    
+
     private func imageURL(at index: Int) -> URL {
         return URL(string: "https://url-\(index+1).com")!
     }
 }
-
