@@ -2,7 +2,6 @@ import XCTest
 import EssentialFeed
 
 final class EssentialFeedEndToEndTests: XCTestCase {
-
     func test_EndtoEndTestServerGETFeedResult_matchesFixedTestAccountdata() {
         switch getFeedResult() {
         case let .success(items)?:
@@ -26,7 +25,7 @@ final class EssentialFeedEndToEndTests: XCTestCase {
 
     private func getFeedResult(file: StaticString = #filePath, line: UInt = #line) -> LoadFeedResult? {
         let testServerURL = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")!
-        let client = URLSessionHTTPClient()
+        let client = URLSessionHTTPClient(session: URLSession.init(configuration: .ephemeral))
         let loader = RemoteFeedLoader(url: testServerURL, client: client)
         
         trackForMemoryLeak(client, file: file, line: line)
