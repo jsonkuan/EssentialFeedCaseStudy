@@ -1,19 +1,6 @@
 import XCTest
 import EssentialFeed
 
-final class FeedStore {
-    var deleteCacheFeedCallCount = 0
-    var insertCallCount = 0
-    
-    func completeDeletion(with error: Error, at index: Int = 0) {
-        
-    }
-    
-    func completeInsertionSuccessfully(at index: Int = 0) {
-        insertCallCount += 1
-    }
-}
-
 final class LocalFeedLoader {
     private let store: FeedStore
     
@@ -22,8 +9,39 @@ final class LocalFeedLoader {
     }
     
     func save(_ items: [FeedItem]) {
-        store.deleteCacheFeedCallCount += 1
+        store.deleteCachedFeed { [unowned self] error in
+            if error == nil {
+                self.store.insert(items)
+            }
+        }
     }
+}
+
+final class FeedStore {
+    typealias DeletionCompletion = (Error?) -> Void
+
+    var deleteCacheFeedCallCount = 0
+    var insertCallCount = 0
+    
+    private var deletionCompletions = [DeletionCompletion]()
+    
+    func deleteCachedFeed(_ completion: @escaping DeletionCompletion) {
+        deleteCacheFeedCallCount += 1
+        deletionCompletions.append(completion)
+    }
+    
+    func completeDeletion(with error: Error, at index: Int = 0) {
+        deletionCompletions[index](error)
+    }
+    
+    func completeDeletionSuccessfully(at index: Int = 0) {
+         deletionCompletions[index](nil)
+    }
+    
+    func insert(_ items: [FeedItem]) {
+        insertCallCount += 1
+    }
+    
 }
 
 final class FeedCacheTests: XCTestCase {
@@ -34,8 +52,8 @@ final class FeedCacheTests: XCTestCase {
     }
     
     func test_save_requestsCacheDeletion() {
-        let (sut, store) = makeSUT()
         let items = [uniqueItem(), uniqueItem()]
+        let (sut, store) = makeSUT()
         
         sut.save(items)
         
@@ -53,12 +71,12 @@ final class FeedCacheTests: XCTestCase {
         XCTAssertEqual(store.insertCallCount, 0)
     }
     
-    func test_save_requestsNewCacheInsertionOnSuccess() {
+    func test_save_requestsNewCacheInsertionOnSuccessfulDeletion() {
         let (sut, store) = makeSUT()
         let items = [uniqueItem(), uniqueItem()]
         
         sut.save(items)
-        store.completeInsertionSuccessfully()
+        store.completeDeletionSuccessfully()
         
         XCTAssertEqual(store.insertCallCount, 1)
     }
