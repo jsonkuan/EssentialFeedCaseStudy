@@ -3,10 +3,14 @@ import EssentialFeed
 
 final class FeedStore {
     var deleteCacheFeedCallCount = 0
-    var insetCallCount = 0
+    var insertCallCount = 0
     
     func completeDeletion(with error: Error, at index: Int = 0) {
         
+    }
+    
+    func completeInsertionSuccessfully(at index: Int = 0) {
+        insertCallCount += 1
     }
 }
 
@@ -46,7 +50,17 @@ final class FeedCacheTests: XCTestCase {
         sut.save(items)
         store.completeDeletion(with: deletionError)
         
-        XCTAssertEqual(store.insetCallCount, 0)
+        XCTAssertEqual(store.insertCallCount, 0)
+    }
+    
+    func test_save_requestsNewCacheInsertionOnSuccess() {
+        let (sut, store) = makeSUT()
+        let items = [uniqueItem(), uniqueItem()]
+        
+        sut.save(items)
+        store.completeInsertionSuccessfully()
+        
+        XCTAssertEqual(store.insertCallCount, 1)
     }
     
     // MARK: - Helpers
