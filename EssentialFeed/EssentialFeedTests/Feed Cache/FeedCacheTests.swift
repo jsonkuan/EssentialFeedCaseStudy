@@ -3,6 +3,11 @@ import EssentialFeed
 
 final class FeedStore {
     var deleteCacheFeedCallCount = 0
+    var insetCallCount = 0
+    
+    func completeDeletion(with error: Error, at index: Int = 0) {
+        
+    }
 }
 
 final class LocalFeedLoader {
@@ -26,11 +31,22 @@ final class FeedCacheTests: XCTestCase {
     
     func test_save_requestsCacheDeletion() {
         let (sut, store) = makeSUT()
-        
         let items = [uniqueItem(), uniqueItem()]
+        
         sut.save(items)
         
         XCTAssertEqual(store.deleteCacheFeedCallCount, 1)
+    }
+    
+    func test_save_doesNotRequestCacheInsertionOnDeletionError() {
+        let (sut, store) = makeSUT()
+        let items = [uniqueItem(), uniqueItem()]
+        let deletionError = NSError(domain: "test", code: 0)
+        
+        sut.save(items)
+        store.completeDeletion(with: deletionError)
+        
+        XCTAssertEqual(store.insetCallCount, 0)
     }
     
     // MARK: - Helpers
