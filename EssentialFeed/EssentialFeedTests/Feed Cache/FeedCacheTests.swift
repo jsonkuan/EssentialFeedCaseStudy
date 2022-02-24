@@ -6,7 +6,7 @@ final class FeedStore {
 }
 
 final class LocalFeedLoader {
-    let store: FeedStore
+    private let store: FeedStore
     
     init(store: FeedStore) {
         self.store = store
@@ -19,27 +19,30 @@ final class LocalFeedLoader {
 
 final class FeedCacheTests: XCTestCase {
     func test_init_doesNotDeleteCacheUponCreation() {
-        let sut = makeSUT()
+        let (_, store) = makeSUT()
         
-        XCTAssertEqual(sut.store.deleteCacheFeedCallCount, 0)
+        XCTAssertEqual(store.deleteCacheFeedCallCount, 0)
     }
     
     func test_save_requestsCacheDeletion() {
-        let sut = makeSUT()
+        let (sut, store) = makeSUT()
         
         let items = [uniqueItem(), uniqueItem()]
         sut.save(items)
         
-        XCTAssertEqual(sut.store.deleteCacheFeedCallCount, 1)
+        XCTAssertEqual(store.deleteCacheFeedCallCount, 1)
     }
     
     // MARK: - Helpers
     
-    private func makeSUT() -> LocalFeedLoader {
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStore) {
         let store = FeedStore()
         let sut = LocalFeedLoader(store: store)
         
-        return sut
+        trackForMemoryLeak(sut, file: file, line: line)
+        trackForMemoryLeak(store, file: file, line: line)
+        
+        return (sut, store)
     }
     
     private func uniqueItem() -> FeedItem {
