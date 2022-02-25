@@ -1,6 +1,13 @@
 import XCTest
 import EssentialFeed
 
+protocol FeedStore {
+    typealias ErrorCompletion = (Error?) -> Void
+    
+    func deleteCachedFeed(_ completion: @escaping ErrorCompletion)
+    func insert(_ items: [FeedItem], currentDate: Date, completion: @escaping ErrorCompletion)
+}
+
 final class LocalFeedLoader {
     private let store: FeedStore
     private let currentDate: () -> Date
@@ -11,21 +18,16 @@ final class LocalFeedLoader {
     }
 
     func save(_ items: [FeedItem], _ completion: @escaping (Error?) -> Void) {
-        store.deleteCachedFeed { [unowned self] error in
+        store.deleteCachedFeed { [weak self] error in
+            guard let self = self else { return }
+            
             if error == nil {
-                self.store.insert(items, currentDate: currentDate(), completion: completion)
+                self.store.insert(items, currentDate: self.currentDate(), completion: completion)
             } else {
                 completion(error)
             }
         }
     }
-}
-
-protocol FeedStore {
-    typealias ErrorCompletion = (Error?) -> Void
-    
-    func deleteCachedFeed(_ completion: @escaping ErrorCompletion)
-    func insert(_ items: [FeedItem], currentDate: Date, completion: @escaping ErrorCompletion)
 }
 
 final class FeedCacheTests: XCTestCase {
@@ -92,6 +94,21 @@ final class FeedCacheTests: XCTestCase {
             store.completeDeletionSuccessfully()
             store.completeInsertionSuccessfully()
         })
+    }
+    
+    func test_save_doesNotCallCompletionAfterInstanceIsDeallocated() {
+        let store = FeedStoreSpy()
+        var sut: LocalFeedLoader? = LocalFeedLoader(store: store, currentDate: Date.init)
+        
+        var receivedResults: Error?
+        sut?.save([uniqueItem()]) { error in
+            receivedResults = error
+        }
+        
+        sut = nil
+        store.completeDeletion(with: anyNSError())
+        
+        XCTAssertNil(receivedResults)
     }
 
     // MARK: - Helpers
