@@ -71,31 +71,27 @@ final class FeedCacheTests: XCTestCase {
         let store = FeedStoreSpy()
         var sut: LocalFeedLoader? = LocalFeedLoader(store: store, currentDate: Date.init)
         
-        var receivedResults: Error?
-        sut?.save([uniqueItem()]) { error in
-            receivedResults = error
-        }
-        
+        var receivedResults = [LocalFeedLoader.SaveResult]()
+        sut?.save([uniqueItem()]) { receivedResults.append($0) }
+            
         sut = nil
         store.completeDeletion(with: anyNSError())
         
-        XCTAssertNil(receivedResults)
+        XCTAssertTrue(receivedResults.isEmpty)
     }
     
     func test_save_doesNotDeliverInsertionErrorAfterSUTIsDeallocated() {
         let store = FeedStoreSpy()
         var sut: LocalFeedLoader? = LocalFeedLoader(store: store, currentDate: Date.init)
         
-        var receivedResults: Error?
-        sut?.save([uniqueItem()]) { error in
-            receivedResults = error
-        }
+        var receivedResults = [LocalFeedLoader.SaveResult]()
+        sut?.save([uniqueItem()]) { receivedResults.append($0) }
         
         store.completeDeletionSuccessfully()
         sut = nil
         store.completeInsertion(with: anyNSError())
         
-        XCTAssertNil(receivedResults)
+        XCTAssertTrue(receivedResults.isEmpty)
     }
 
     // MARK: - Helpers
@@ -133,6 +129,8 @@ final class FeedCacheTests: XCTestCase {
         return NSError(domain: "any error", code: 0)
     }
 }
+
+// MARK: - Spy
 
 private extension FeedCacheTests {
     final class FeedStoreSpy: FeedStore {
