@@ -32,11 +32,14 @@ final class FeedCacheTests: XCTestCase {
         let timestamp = Date()
         let (sut, store) = makeSUT(currentDate: { timestamp })
         let items = [uniqueItem(), uniqueItem()]
-
+        let localFeedItems = items.map {
+            LocalFeedItem(id: $0.id, description: $0.description, location: $0.location, imageUrl: $0.imageUrl)
+        }
+        
         sut.save(items) { _ in }
         store.completeDeletionSuccessfully()
 
-        XCTAssertEqual(store.receivedMessages, [.deleteCachedFeed, .insert(items, timestamp)] )
+        XCTAssertEqual(store.receivedMessages, [.deleteCachedFeed, .insert(localFeedItems, timestamp)] )
     }
 
     func test_save_failsOnDeletionError() {
@@ -128,6 +131,11 @@ final class FeedCacheTests: XCTestCase {
     private func anyNSError() -> NSError {
         return NSError(domain: "any error", code: 0)
     }
+    
+    private func anyURL() -> URL {
+        return URL(string: "http://any-url.com")!
+    }
+
 }
 
 // MARK: - Spy
@@ -136,7 +144,7 @@ private extension FeedCacheTests {
     final class FeedStoreSpy: FeedStore {
         enum ReceivedMessage: Equatable {
             case deleteCachedFeed
-            case insert([FeedItem], Date)
+            case insert([LocalFeedItem], Date)
          }
 
         private(set) var receivedMessages = [ReceivedMessage]()
@@ -157,7 +165,7 @@ private extension FeedCacheTests {
              deletionCompletions[index](nil)
         }
 
-        func insert(_ items: [FeedItem], currentDate: Date, completion: @escaping ErrorCompletion) {
+        func insert(_ items: [LocalFeedItem], currentDate: Date, completion: @escaping ErrorCompletion) {
             insertionCompletions.append(completion)
             receivedMessages.append(.insert(items, currentDate))
         }
