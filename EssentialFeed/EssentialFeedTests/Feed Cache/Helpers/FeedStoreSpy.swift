@@ -11,7 +11,7 @@ final class FeedStoreSpy: FeedStore {
 
     private var deletionCompletions = [ErrorCompletion]()
     private var insertionCompletions = [ErrorCompletion]()
-    private var loadCompletions = [ErrorCompletion]()
+    private var retrievalCompletions = [ErrorCompletion]()
 
     // MARK: - Delete
 
@@ -45,7 +45,12 @@ final class FeedStoreSpy: FeedStore {
 
     // MARK: - Load
 
-    func retrieve() {
+    func retrieve(_ completion: @escaping ErrorCompletion) {
+        retrievalCompletions.append(completion)
         receivedMessages.append(.retrieve)
+    }
+    
+    func completeRetrieval(with error: Error, at index: Int = 0) {
+        retrievalCompletions[index](error)
     }
 }
