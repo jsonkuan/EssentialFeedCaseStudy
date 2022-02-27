@@ -49,8 +49,12 @@ final class FeedStoreSpy: FeedStore {
         retrievalCompletions.append(completion)
         receivedMessages.append(.retrieve)
     }
-    
+
     func completeRetrieval(with error: Error, at index: Int = 0) {
         retrievalCompletions[index](.failure(error))
+    }
+
+    func completeRetrievalSuccessfully(at index: Int = 0) {
+        retrievalCompletions[index](.success([]))
     }
 }
