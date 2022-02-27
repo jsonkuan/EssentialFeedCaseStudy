@@ -1,7 +1,7 @@
 import XCTest
 import EssentialFeed
 
-final class FeedCacheTests: XCTestCase {
+final class CacheFeedUseCaseTests: XCTestCase {
     func test_init_doesNotMessageStoreUponCreation() {
         let (_, store) = makeSUT()
 
@@ -146,7 +146,7 @@ final class FeedCacheTests: XCTestCase {
 
 // MARK: - Spy
 
-private extension FeedCacheTests {
+private extension CacheFeedUseCaseTests {
     final class FeedStoreSpy: FeedStore {
         enum ReceivedMessage: Equatable {
             case deleteCachedFeed
