@@ -122,7 +122,7 @@ final class CacheFeedUseCaseTests: XCTestCase {
     }
 
     private func uniqueFeedImage() -> FeedImage {
-        FeedImage(id: UUID(), description: nil, location: nil, url: URL(string: "https://any-url.com")!)
+        FeedImage(id: UUID(), description: nil, location: nil, url: anyURL())
     }
 
     private func uniqueImageFeed() -> (models: [FeedImage], local: [LocalFeedImage]) {
@@ -141,5 +141,4 @@ final class CacheFeedUseCaseTests: XCTestCase {
     private func anyURL() -> URL {
         return URL(string: "http://any-url.com")!
     }
-
 }

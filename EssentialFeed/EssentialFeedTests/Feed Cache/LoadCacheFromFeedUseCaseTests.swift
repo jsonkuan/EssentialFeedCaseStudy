@@ -22,7 +22,7 @@ final class LoadCacheFromFeedUseCaseTests: XCTestCase {
 
         expect(sut, toCompleteWith: .failure(expectedError), when: {
             store.completeRetrieval(with: expectedError)
-        })  
+        })
     }
 
     func test_load_deliversNoImagesOnEmptyCache() {
@@ -30,6 +30,17 @@ final class LoadCacheFromFeedUseCaseTests: XCTestCase {
         
         expect(sut, toCompleteWith: .success([]), when: {
             store.completeRetrievalWithEmptyCache()
+        })
+    }
+    
+    func test_load_deliversCachedImagesOnLessThanSevenDaysOldCache() {
+        let feed = uniqueImageFeed()
+        let fixedCurrentDate = Date()
+        let lessThanSevenDaysOldTimestamp = fixedCurrentDate.adding(days: -7).adding(seconds: 1)
+        let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
+        
+        expect(sut, toCompleteWith: .success(feed.models), when: {
+            store.completeRetrieval(with: feed.local, timestamp: lessThanSevenDaysOldTimestamp)
         })
     }
 
@@ -68,5 +79,32 @@ final class LoadCacheFromFeedUseCaseTests: XCTestCase {
 
     private func anyNSError() -> NSError {
         return NSError(domain: "any error", code: 0)
+    }
+    
+    private func anyURL() -> URL {
+        return URL(string: "http://any-url.com")!
+    }
+    
+    private func uniqueFeedImage() -> FeedImage {
+        FeedImage(id: UUID(), description: nil, location: nil, url: anyURL())
+    }
+    
+    private func uniqueImageFeed() -> (models: [FeedImage], local: [LocalFeedImage]) {
+        let images = [uniqueFeedImage(), uniqueFeedImage()]
+        let localFeedImages = images.map {
+            LocalFeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url)
+        }
+
+        return (images, localFeedImages)
+    }
+}
+
+private extension Date {
+    func adding(days: Int) -> Date {
+        Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
+    }
+    
+    func adding(seconds: TimeInterval) -> Date {
+        return self + seconds
     }
 }
