@@ -32,7 +32,7 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
             store.completeRetrievalWithEmptyCache()
         })
     }
-    
+        
     func test_load_deliversCachedImagesOnLessThanSevenDaysOldCache() {
         let feed = uniqueImageFeed()
         let fixedCurrentDate = Date()
