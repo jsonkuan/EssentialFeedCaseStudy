@@ -21,9 +21,9 @@ public final class LocalFeedLoader {
         }
     }
 
-    public func load(completion: @escaping (Error?) -> Void) {
-        store.retrieve { error in
-            completion(error)
+    public func load(completion: @escaping (LoadFeedResult) -> Void) {
+        store.retrieve { result in
+            completion(result)
         }
     }
 

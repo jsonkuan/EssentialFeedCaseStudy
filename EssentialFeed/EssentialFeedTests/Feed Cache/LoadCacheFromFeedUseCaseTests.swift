@@ -22,8 +22,13 @@ final class LoadCacheFromFeedUseCaseTests: XCTestCase {
         let expectedError = anyNSError()
         
         var receivedError: Error?
-        sut.load() { error in
-            receivedError = error
+        sut.load() { result in
+            switch result {
+            case let .success(images):
+                XCTFail("Expected failure but succeeded with images: \(images)")
+            case let .failure(error):
+                receivedError = error
+            }
             exp.fulfill()
         }
         store.completeRetrieval(with: expectedError)
