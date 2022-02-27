@@ -32,7 +32,7 @@ final class CacheFeedUseCaseTests: XCTestCase {
         let timestamp = Date()
         let (sut, store) = makeSUT(currentDate: { timestamp })
         let feed = uniqueImageFeed()
-        
+
         sut.save(feed.models) { _ in }
         store.completeDeletionSuccessfully()
 
@@ -66,31 +66,31 @@ final class CacheFeedUseCaseTests: XCTestCase {
             store.completeInsertionSuccessfully()
         })
     }
-    
+
     func test_save_doesNotDeliverDeletionErrorAfterSUTIsDeallocated() {
         let store = FeedStoreSpy()
         var sut: LocalFeedLoader? = LocalFeedLoader(store: store, currentDate: Date.init)
-        
+
         var receivedResults = [LocalFeedLoader.SaveResult]()
         sut?.save([uniqueFeedImage()]) { receivedResults.append($0) }
-            
+
         sut = nil
         store.completeDeletion(with: anyNSError())
-        
+
         XCTAssertTrue(receivedResults.isEmpty)
     }
-    
+
     func test_save_doesNotDeliverInsertionErrorAfterSUTIsDeallocated() {
         let store = FeedStoreSpy()
         var sut: LocalFeedLoader? = LocalFeedLoader(store: store, currentDate: Date.init)
-        
+
         var receivedResults = [LocalFeedLoader.SaveResult]()
         sut?.save([uniqueFeedImage()]) { receivedResults.append($0) }
-        
+
         store.completeDeletionSuccessfully()
         sut = nil
         store.completeInsertion(with: anyNSError())
-        
+
         XCTAssertTrue(receivedResults.isEmpty)
     }
 
@@ -124,65 +124,23 @@ final class CacheFeedUseCaseTests: XCTestCase {
     private func uniqueFeedImage() -> FeedImage {
         FeedImage(id: UUID(), description: nil, location: nil, url: URL(string: "https://any-url.com")!)
     }
-    
+
     private func uniqueImageFeed() -> (models: [FeedImage], local: [LocalFeedImage]) {
         let images = [uniqueFeedImage(), uniqueFeedImage()]
         let localFeedImages = images.map {
             LocalFeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url)
         }
-        
+
         return (images, localFeedImages)
     }
 
     private func anyNSError() -> NSError {
         return NSError(domain: "any error", code: 0)
     }
-    
+
     private func anyURL() -> URL {
         return URL(string: "http://any-url.com")!
     }
 
-}
-
-// MARK: - Spy
-
-private extension CacheFeedUseCaseTests {
-    final class FeedStoreSpy: FeedStore {
-        enum ReceivedMessage: Equatable {
-            case deleteCachedFeed
-            case insert([LocalFeedImage], Date)
-         }
-
-        private(set) var receivedMessages = [ReceivedMessage]()
-
-        private var deletionCompletions = [ErrorCompletion]()
-        private var insertionCompletions = [ErrorCompletion]()
-
-        func deleteCachedFeed(_ completion: @escaping ErrorCompletion) {
-            deletionCompletions.append(completion)
-            receivedMessages.append(.deleteCachedFeed)
-        }
-
-        func completeDeletion(with error: Error, at index: Int = 0) {
-            deletionCompletions[index](error)
-        }
-
-        func completeDeletionSuccessfully(at index: Int = 0) {
-             deletionCompletions[index](nil)
-        }
-
-        func insert(_ images: [LocalFeedImage], currentDate: Date, completion: @escaping ErrorCompletion) {
-            insertionCompletions.append(completion)
-            receivedMessages.append(.insert(images, currentDate))
-        }
-
-        func completeInsertion(with error: Error, at index: Int = 0) {
-            insertionCompletions[index](error)
-        }
-
-        func completeInsertionSuccessfully(at index: Int = 0) {
-            insertionCompletions[index](nil)
-        }
-    }
 }
 
