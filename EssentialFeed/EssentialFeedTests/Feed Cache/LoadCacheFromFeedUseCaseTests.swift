@@ -24,10 +24,10 @@ final class LoadCacheFromFeedUseCaseTests: XCTestCase {
         var receivedError: Error?
         sut.load { result in
             switch result {
-            case let .success(images):
-                XCTFail("Expected failure but succeeded with images: \(images)")
             case let .failure(error):
                 receivedError = error
+            default:
+                XCTFail("Expected failure, got \(result) instead.")
             }
             exp.fulfill()
         }
@@ -46,12 +46,12 @@ final class LoadCacheFromFeedUseCaseTests: XCTestCase {
             switch result {
             case let .success(images):
                 receivedImages = images
-            case let .failure(error):
-                XCTFail("Expected success but failed with error: \(error)")
+            default:
+                XCTFail("Expected success, got \(result) instead.")
             }
             exp.fulfill()
         }
-        store.completeRetrievalSuccessfully()
+        store.completeRetrievalWithEmptyCache()
 
         wait(for: [exp], timeout: 1.0)
         XCTAssertEqual(receivedImages, [])

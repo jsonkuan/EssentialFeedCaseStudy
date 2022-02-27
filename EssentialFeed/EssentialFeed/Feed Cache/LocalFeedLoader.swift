@@ -1,5 +1,6 @@
 public final class LocalFeedLoader {
     public typealias SaveResult = Error?
+    public typealias LoadResult = LoadFeedResult
 
     private let store: FeedStore
     private let currentDate: () -> Date
@@ -21,9 +22,13 @@ public final class LocalFeedLoader {
         }
     }
 
-    public func load(completion: @escaping (LoadFeedResult) -> Void) {
-        store.retrieve { result in
-            completion(result)
+    public func load(completion: @escaping (LoadResult) -> Void) {
+        store.retrieve { error in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                completion(.success([]))
+            }
         }
     }
 
