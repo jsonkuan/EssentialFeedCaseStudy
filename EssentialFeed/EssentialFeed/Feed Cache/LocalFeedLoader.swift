@@ -1,4 +1,4 @@
-public final class LocalFeedLoader {
+public final class LocalFeedLoader: FeedLoader {
     public typealias SaveResult = Error?
     public typealias LoadResult = LoadFeedResult
 
@@ -35,7 +35,7 @@ extension LocalFeedLoader {
         }
     }
     
-    private func cache(_ feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
+    private func  cache(_ feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
         store.insert(feed.toLocal(), currentDate: currentDate()) { [weak self] error in
             guard self != nil else { return }
             completion(error)
