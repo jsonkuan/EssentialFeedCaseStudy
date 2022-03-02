@@ -3,8 +3,30 @@ import EssentialFeed
 
 final class CodeableFeedStore {
     private struct Cache: Codable {
-        let feed: [LocalFeedImage]
+        let feed: [CodableFeedImage]
         let timestamp: Date
+        
+        var localFeed: [LocalFeedImage] {
+            return feed.map { $0.local }
+        }
+    }
+    
+    private struct CodableFeedImage: Codable {
+        private let id: UUID
+        private let description: String?
+        private let location: String?
+        private let url: URL
+            
+        init(_ image: LocalFeedImage) {
+            id = image.id
+            description = image.description
+            location = image.location
+            url = image.url
+        }
+    
+        var local: LocalFeedImage {
+            LocalFeedImage(id: id, description: description, location: location, url: url)
+        }
     }
     
     let storeURL = FileManager.default
@@ -12,21 +34,22 @@ final class CodeableFeedStore {
         .first!
         .appendingPathComponent("image-feed.store")
     
-    func insert(_ feed: [LocalFeedImage], currentDate: Date, completion: @escaping FeedStore.ErrorCompletion) {
-        let encoder = JSONEncoder()
-        let data = try! encoder.encode(Cache(feed: feed, timestamp: currentDate))
-
-        try! data.write(to: storeURL)
-        completion(nil)
-    }
-    
     func retrieve(completion: @escaping FeedStore.RetrievalCompletion) {
         guard let data = try? Data(contentsOf: storeURL) else {
             return completion(.empty)
         }
-
+        
         let cache = try! JSONDecoder().decode(Cache.self, from: data)
-        completion(.found(feed: cache.feed, timestamp: cache.timestamp))
+        completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
+    }
+    
+    func insert(_ feed: [LocalFeedImage], currentDate: Date, completion: @escaping FeedStore.ErrorCompletion) {
+        let encoder = JSONEncoder()
+        let cache = Cache(feed: feed.map(CodableFeedImage.init), timestamp: currentDate)
+        let data = try! encoder.encode(cache)
+
+        try! data.write(to: storeURL)
+        completion(nil)
     }
 }
 
