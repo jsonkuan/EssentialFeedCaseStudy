@@ -40,8 +40,12 @@ final class CodeableFeedStore {
             return completion(.empty)
         }
 
-        let cache = try! JSONDecoder().decode(Cache.self, from: data)
-        completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
+        do {
+            let cache = try JSONDecoder().decode(Cache.self, from: data)
+            completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
+        } catch {
+            completion(.failure(error))
+        }
     }
 
     func insert(_ feed: [LocalFeedImage], currentDate: Date, completion: @escaping FeedStore.ErrorCompletion) {
@@ -97,6 +101,15 @@ final class CodeableFeedStoreTests: XCTestCase {
         
         expect(sut, toRetrieve: .found(feed: feed, timestamp: timestamp))
     }
+    
+    func test_retrieve_deliversFailureWithInvalidJSON() {
+        let sut = makeSUT()
+        
+        try! "Invalid json".write(to: testSpecificStoreURL(), atomically: false, encoding: .utf8)
+        
+        expect(sut, toRetrieve: .failure(anyNSError()))
+    }
+    
 
 
     // MARK: - Helpers
@@ -124,15 +137,15 @@ final class CodeableFeedStoreTests: XCTestCase {
 
         sut.retrieve { retrievedResult in
             switch (retrievedResult, expectedResult) {
-            case (.empty, .empty):
+            case (.empty, .empty), (.failure, .failure):
                 break
 
             case let (.found(expected), .found(retrieved)):
                 XCTAssertEqual(retrieved.feed, expected.feed, file: file, line: line)
                 XCTAssertEqual(retrieved.timestamp, expected.timestamp, file: file, line: line)
-
+                
             default:
-                XCTFail("Expected to retrieve \(expectedResult), got \(retrievedResult) instead.")
+                XCTFail("Expected to retrieve \(expectedResult), got \(retrievedResult) instead.", file: file, line: line)
             }
             exp.fulfill()
         }
