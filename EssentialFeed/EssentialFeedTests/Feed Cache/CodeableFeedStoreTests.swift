@@ -190,14 +190,14 @@ final class CodeableFeedStoreTests: XCTestCase {
     
     // MARK: - Helpers
 
-    private func makeSUT(url: URL? = nil, file: StaticString = #filePath, line: UInt = #line) -> CodeableFeedStore {
+    private func makeSUT(url: URL? = nil, file: StaticString = #filePath, line: UInt = #line) -> FeedStore {
         let store = CodeableFeedStore(storeURL: url ?? testSpecificStoreURL())
         trackForMemoryLeak(store, file: file, line: line)
 
         return store
     }
     
-    private func deleteCache(from sut: CodeableFeedStore) -> Error? {
+    private func deleteCache(from sut: FeedStore) -> Error? {
         let exp = XCTestExpectation(description: "Waiting for deletion completion")
         
         var deletionError: Error?
@@ -211,7 +211,7 @@ final class CodeableFeedStoreTests: XCTestCase {
     }
     
     @discardableResult
-    private func insert(_ cache: (feed: [LocalFeedImage], timestamp: Date), to sut: CodeableFeedStore) -> Error? {
+    private func insert(_ cache: (feed: [LocalFeedImage], timestamp: Date), to sut: FeedStore) -> Error? {
         let exp = XCTestExpectation(description: "Waiting for insertion completion")
 
         var insertionError: Error?
@@ -224,7 +224,7 @@ final class CodeableFeedStoreTests: XCTestCase {
         return insertionError
     }
 
-    private func expect(_ sut: CodeableFeedStore, toRetrieve expectedResult: RetrieveCacheFeedResult, file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(_ sut: FeedStore, toRetrieve expectedResult: RetrieveCacheFeedResult, file: StaticString = #filePath, line: UInt = #line) {
         let exp = XCTestExpectation(description: "Waiting for completion")
 
         sut.retrieve { retrievedResult in
@@ -244,7 +244,7 @@ final class CodeableFeedStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
-    private func expect(_ sut: CodeableFeedStore, toRetrieveTwice expectedResult: RetrieveCacheFeedResult, file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(_ sut: FeedStore, toRetrieveTwice expectedResult: RetrieveCacheFeedResult, file: StaticString = #filePath, line: UInt = #line) {
         expect(sut, toRetrieve: expectedResult, file: file, line: line)
         expect(sut, toRetrieve: expectedResult, file: file, line: line)
     }
