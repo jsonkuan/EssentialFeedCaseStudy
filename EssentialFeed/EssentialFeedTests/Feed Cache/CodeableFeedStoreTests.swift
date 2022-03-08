@@ -59,6 +59,11 @@ final class CodeableFeedStore {
             completion(error)
         }
     }
+ 
+    func deleteCachedFeed(_ completion: @escaping FeedStore.DeletionCompletion) {
+        completion(nil)
+    }
+    
 }
 
 final class CodeableFeedStoreTests: XCTestCase {
@@ -145,6 +150,32 @@ final class CodeableFeedStoreTests: XCTestCase {
         
         XCTAssertNotNil(insertionError, "Expected cache insertion to fail with an error")
     }
+    
+    func test_delete_hasNoSideEffectsOnEmptyCache() {
+        let sut = makeSUT()
+        let exp = XCTestExpectation(description: "Waiting for deletion completion")
+        
+        sut.deleteCachedFeed { deletionError in
+            XCTAssertNil(deletionError, "Expected to successfully delete empty cache")
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 1.0)
+        
+        expect(sut, toRetrieve: .empty)
+    }
+    
+    func test_delete_emptiesPreviouslyInsertedCache() {
+        
+    }
+    
+    func test_delete_delieversErrorOnDeletionError() {
+        
+    }
+    
+    // Conform to feed Store
+    // Delete namespace
+    // CodableFeed store to own file (public/private)
 
     // MARK: - Helpers
 
