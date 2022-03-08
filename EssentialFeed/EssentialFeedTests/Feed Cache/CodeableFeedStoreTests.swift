@@ -65,8 +65,12 @@ final class CodeableFeedStore {
             return completion(nil)
         }
         
-        try! FileManager.default.removeItem(at: storeURL)
-        completion(nil)
+        do {
+            try FileManager.default.removeItem(at: storeURL)
+            completion(nil)
+        } catch {
+            completion(error)
+        }
     }
 }
 
@@ -174,6 +178,16 @@ final class CodeableFeedStoreTests: XCTestCase {
         expect(sut, toRetrieve: .empty)
     }
     
+    func test_delete_deliversErrorOnDeletionError() {
+        let noDeletePermissionsUrl = cachesDirectory()
+        let sut = makeSUT(url: noDeletePermissionsUrl)
+        
+        let deletionError = deleteCache(from: sut)
+        
+        XCTAssertNotNil(deletionError, "Expected cache deletion to fail with an error")
+        expect(sut, toRetrieve: .empty)
+    }
+    
     // MARK: - Helpers
 
     private func makeSUT(url: URL? = nil, file: StaticString = #filePath, line: UInt = #line) -> CodeableFeedStore {
@@ -237,6 +251,10 @@ final class CodeableFeedStoreTests: XCTestCase {
 
     private func testSpecificStoreURL() -> URL {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("\(type(of: self)).store")
+    }
+    
+    private func cachesDirectory() -> URL {
+        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
     }
 
     private func setupEmptyStoreState() {
