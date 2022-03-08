@@ -157,14 +157,9 @@ final class CodeableFeedStoreTests: XCTestCase {
     
     func test_delete_hasNoSideEffectsOnEmptyCache() {
         let sut = makeSUT()
-        let exp = XCTestExpectation(description: "Waiting for deletion completion")
         
-        sut.deleteCachedFeed { deletionError in
-            XCTAssertNil(deletionError, "Expected to successfully delete empty cache")
-            exp.fulfill()
-        }
-        
-        wait(for: [exp], timeout: 1.0)
+        let deletionError = deleteCache(from: sut)
+        XCTAssertNil(deletionError, "Expected to successfully delete empty cache")
         
         expect(sut, toRetrieve: .empty)
     }
@@ -173,17 +168,12 @@ final class CodeableFeedStoreTests: XCTestCase {
         let sut = makeSUT()
         insert((feed: uniqueImageFeed().local, timestamp: Date()), to: sut)
         
-        let exp = XCTestExpectation(description: "Waiting for deletion completion")
-        sut.deleteCachedFeed { deletionError in
-            XCTAssertNil(deletionError, "Expected to successfully delete empty cache")
-            exp.fulfill()
-        }
-        
-        wait(for: [exp], timeout: 1.0)
+        let deletionError = deleteCache(from: sut)
+        XCTAssertNil(deletionError, "Expected to successfully delete non-empty cache")
         
         expect(sut, toRetrieve: .empty)
     }
-
+    
     // MARK: - Helpers
 
     private func makeSUT(url: URL? = nil, file: StaticString = #filePath, line: UInt = #line) -> CodeableFeedStore {
@@ -191,6 +181,19 @@ final class CodeableFeedStoreTests: XCTestCase {
         trackForMemoryLeak(store, file: file, line: line)
 
         return store
+    }
+    
+    private func deleteCache(from sut: CodeableFeedStore) -> Error? {
+        let exp = XCTestExpectation(description: "Waiting for deletion completion")
+        
+        var deletionError: Error?
+        sut.deleteCachedFeed { receivedDeletionError in
+            deletionError = receivedDeletionError
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 1.0)
+        return deletionError
     }
     
     @discardableResult
