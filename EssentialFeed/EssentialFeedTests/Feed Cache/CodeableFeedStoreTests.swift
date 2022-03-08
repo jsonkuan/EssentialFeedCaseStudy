@@ -61,9 +61,13 @@ final class CodeableFeedStore {
     }
  
     func deleteCachedFeed(_ completion: @escaping FeedStore.DeletionCompletion) {
+        guard FileManager.default.fileExists(atPath: storeURL.path) else {
+            return completion(nil)
+        }
+        
+        try! FileManager.default.removeItem(at: storeURL)
         completion(nil)
     }
-    
 }
 
 final class CodeableFeedStoreTests: XCTestCase {
@@ -166,16 +170,19 @@ final class CodeableFeedStoreTests: XCTestCase {
     }
     
     func test_delete_emptiesPreviouslyInsertedCache() {
+        let sut = makeSUT()
+        insert((feed: uniqueImageFeed().local, timestamp: Date()), to: sut)
         
-    }
-    
-    func test_delete_delieversErrorOnDeletionError() {
+        let exp = XCTestExpectation(description: "Waiting for deletion completion")
+        sut.deleteCachedFeed { deletionError in
+            XCTAssertNil(deletionError, "Expected to successfully delete empty cache")
+            exp.fulfill()
+        }
         
+        wait(for: [exp], timeout: 1.0)
+        
+        expect(sut, toRetrieve: .empty)
     }
-    
-    // Conform to feed Store
-    // Delete namespace
-    // CodableFeed store to own file (public/private)
 
     // MARK: - Helpers
 
