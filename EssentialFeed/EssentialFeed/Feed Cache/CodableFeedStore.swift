@@ -25,9 +25,8 @@ public final class CodeableFeedStore: FeedStore {
             LocalFeedImage(id: id, description: description, location: location, url: url)
         }
     }
-    
+
     private let queue = DispatchQueue(label: "\(CodeableFeedStore.self)Queue", qos: .userInitiated)
-    
     private let storeURL: URL
 
     public init(storeURL: URL) {
@@ -40,7 +39,7 @@ public final class CodeableFeedStore: FeedStore {
             guard let data = try? Data(contentsOf: storeURL) else {
                 return completion(.empty)
             }
-            
+
             do {
                 let cache = try JSONDecoder().decode(Cache.self, from: data)
                 completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
@@ -64,14 +63,14 @@ public final class CodeableFeedStore: FeedStore {
             }
         }
     }
- 
+
     public func deleteCachedFeed(_ completion: @escaping DeletionCompletion) {
         let storeURL = storeURL
         queue.async {
             guard FileManager.default.fileExists(atPath: storeURL.path) else {
                 return completion(nil)
             }
-            
+
             do {
                 try FileManager.default.removeItem(at: storeURL)
                 completion(nil)
