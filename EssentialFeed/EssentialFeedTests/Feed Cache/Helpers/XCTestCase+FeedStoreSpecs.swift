@@ -2,6 +2,10 @@ import XCTest
 import EssentialFeed
 
 extension FeedStoreSpecs where Self: XCTestCase {
+    func assertThatRetrieveDeliversEmptyOnEmptyCache(on sut: FeedStore, file: StaticString = #filePath, line: UInt = #line) {
+        expect(sut, toRetrieve: .empty, file: file, line: line)
+    }
+    
     @discardableResult
     func deleteCache(from sut: FeedStore) -> Error? {
         let exp = XCTestExpectation(description: "Waiting for deletion completion")
