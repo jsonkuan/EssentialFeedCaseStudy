@@ -30,9 +30,9 @@ final class FeedStoreSpy: FeedStore {
 
     // MARK: - Insert
 
-    func insert(_ images: [LocalFeedImage], currentDate: Date, completion: @escaping InsertionCompletion) {
+    func insert(_ images: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
         insertionCompletions.append(completion)
-        receivedMessages.append(.insert(images, currentDate))
+        receivedMessages.append(.insert(images, timestamp))
     }
 
     func completeInsertion(with error: Error, at index: Int = 0) {

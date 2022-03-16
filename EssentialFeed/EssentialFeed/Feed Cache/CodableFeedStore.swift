@@ -49,12 +49,12 @@ public final class CodeableFeedStore: FeedStore {
         }
     }
 
-    public func insert(_ feed: [LocalFeedImage], currentDate: Date, completion: @escaping InsertionCompletion) {
+    public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
         let storeURL = storeURL
         queue.async(flags: .barrier) {
             do {
                 let encoder = JSONEncoder()
-                let cache = Cache(feed: feed.map(CodableFeedImage.init), timestamp: currentDate)
+                let cache = Cache(feed: feed.map(CodableFeedImage.init), timestamp: timestamp)
                 let data = try encoder.encode(cache)
                 try data.write(to: storeURL)
                 completion(nil)

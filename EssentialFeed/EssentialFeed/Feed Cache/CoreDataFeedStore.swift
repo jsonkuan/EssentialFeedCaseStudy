@@ -12,12 +12,12 @@ public final class CoreDataFeedStore: FeedStore {
     public func deleteCachedFeed(_ completion: @escaping DeletionCompletion) {
     }
 
-    public func insert(_ feed: [LocalFeedImage], currentDate: Date, completion: @escaping InsertionCompletion) {
+    public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
         let context = self.context
         context.perform {
             do {
                 let managedCache = ManagedCache(context: context)
-                managedCache.timestamp = currentDate
+                managedCache.timestamp = timestamp
                 managedCache.feed = NSOrderedSet(array: feed.map { local in
                     let managed = ManagedFeedImage(context: context)
                     managed.id = local.id
