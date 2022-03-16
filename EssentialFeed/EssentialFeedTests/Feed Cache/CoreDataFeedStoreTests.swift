@@ -21,9 +21,9 @@ final class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
     }
 
     func test_retrieve_deliversFoundValuesOnNonEmptyCache() {
-//        let sut = makeSUT()
-//
-//        assertThatRetrieveDeliversFoundValuesOnNonEmptyCache(on: sut)
+        let sut = makeSUT()
+
+        assertThatRetrieveDeliversFoundValuesOnNonEmptyCache(on: sut)
     }
 
     func test_insert_deliversErrorOnInsertionError() {
@@ -80,7 +80,8 @@ final class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
         let storeBundle = Bundle(for: CoreDataFeedStore.self)
         let storeURL = URL(fileURLWithPath: "/dev/null")
         let sut = try! CoreDataFeedStore(storeURL: storeURL, bundle: storeBundle)
-        trackForMemoryLeak(sut)
+        
+        trackForMemoryLeak(sut, file: file, line: line)
 
         return sut
     }
