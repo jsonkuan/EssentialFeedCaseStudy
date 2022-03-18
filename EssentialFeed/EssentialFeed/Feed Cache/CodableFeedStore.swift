@@ -1,4 +1,4 @@
-public final class CodeableFeedStore: FeedStore {
+public final class CodableFeedStore: FeedStore {
     private struct Cache: Codable {
         let feed: [CodableFeedImage]
         let timestamp: Date
@@ -26,7 +26,7 @@ public final class CodeableFeedStore: FeedStore {
         }
     }
 
-    private let queue = DispatchQueue(label: "\(CodeableFeedStore.self)Queue", qos: .userInitiated, attributes: .concurrent)
+    private let queue = DispatchQueue(label: "\(CodableFeedStore.self)Queue", qos: .userInitiated, attributes: .concurrent)
     private let storeURL: URL
 
     public init(storeURL: URL) {
