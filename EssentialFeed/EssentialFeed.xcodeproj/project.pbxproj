@@ -16,6 +16,8 @@
 		150D381027E44DAB00F702C4 /* XCTestCase+FailableInsertFeedStoreSpecs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150D380F27E44DAB00F702C4 /* XCTestCase+FailableInsertFeedStoreSpecs.swift */; };
 		150D381227E44DDD00F702C4 /* XCTestCase+FailableDeleteFeedStoreSpecs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150D381127E44DDD00F702C4 /* XCTestCase+FailableDeleteFeedStoreSpecs.swift */; };
 		150D381827E4588700F702C4 /* CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150D381627E4584100F702C4 /* CoreDataHelpers.swift */; };
+		150D381A27E4596A00F702C4 /* ManagedCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150D381927E4596A00F702C4 /* ManagedCache.swift */; };
+		150D381C27E459B900F702C4 /* ManagedFeedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150D381B27E459B900F702C4 /* ManagedFeedImage.swift */; };
 		151A739327E05B4F002DB4C1 /* CoreDataFeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 151A739027E056C3002DB4C1 /* CoreDataFeedStore.swift */; };
 		151A739427E05FCC002DB4C1 /* FeedStore.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 155FED1127D9CC600084CDFE /* FeedStore.xcdatamodeld */; };
 		151B22A627BD64B200079F06 /* URLSessionHTTPClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 151B22A527BD64B200079F06 /* URLSessionHTTPClientTests.swift */; };
@@ -73,6 +75,8 @@
 		150D380F27E44DAB00F702C4 /* XCTestCase+FailableInsertFeedStoreSpecs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+FailableInsertFeedStoreSpecs.swift"; sourceTree = "<group>"; };
 		150D381127E44DDD00F702C4 /* XCTestCase+FailableDeleteFeedStoreSpecs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+FailableDeleteFeedStoreSpecs.swift"; sourceTree = "<group>"; };
 		150D381627E4584100F702C4 /* CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataHelpers.swift; sourceTree = "<group>"; };
+		150D381927E4596A00F702C4 /* ManagedCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedCache.swift; sourceTree = "<group>"; };
+		150D381B27E459B900F702C4 /* ManagedFeedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedFeedImage.swift; sourceTree = "<group>"; };
 		151A739027E056C3002DB4C1 /* CoreDataFeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFeedStore.swift; sourceTree = "<group>"; };
 		151B22A527BD64B200079F06 /* URLSessionHTTPClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionHTTPClientTests.swift; sourceTree = "<group>"; };
 		153B164C27C6C17D00481669 /* CacheFeedUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheFeedUseCaseTests.swift; sourceTree = "<group>"; };
@@ -145,6 +149,8 @@
 				155FED1127D9CC600084CDFE /* FeedStore.xcdatamodeld */,
 				151A739027E056C3002DB4C1 /* CoreDataFeedStore.swift */,
 				150D381627E4584100F702C4 /* CoreDataHelpers.swift */,
+				150D381927E4596A00F702C4 /* ManagedCache.swift */,
+				150D381B27E459B900F702C4 /* ManagedFeedImage.swift */,
 			);
 			path = CoreData;
 			sourceTree = "<group>";
@@ -449,11 +455,13 @@
 				150D381827E4588700F702C4 /* CoreDataHelpers.swift in Sources */,
 				15A3BFE027B7B289004C10EF /* FeedLoader.swift in Sources */,
 				151A739327E05B4F002DB4C1 /* CoreDataFeedStore.swift in Sources */,
+				150D381A27E4596A00F702C4 /* ManagedCache.swift in Sources */,
 				15A539E827BC075700558A9D /* FeedItemsMapper.swift in Sources */,
 				153B165D27CB6F4D00481669 /* RemoteFeedItem.swift in Sources */,
 				158D196D27D72C44007D3B6E /* CodableFeedStore.swift in Sources */,
 				150B723F27CDE867001A01F1 /* FeedCachePolicy.swift in Sources */,
 				15A3BFDE27B7AFF8004C10EF /* FeedImage.swift in Sources */,
+				150D381C27E459B900F702C4 /* ManagedFeedImage.swift in Sources */,
 				153B165927C9629900481669 /* LocalFeedLoader.swift in Sources */,
 				15A3BFC727B7AA7E004C10EF /* EssentialFeed.docc in Sources */,
 			);
