@@ -12,7 +12,7 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
 
     func test_load_deliversNoItemsOnEmptyCache() {
         let sut = makeSUT()
-        
+
         expect(sut, toLoad: [])
     }
 
@@ -23,16 +23,11 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
         let sutToPerformLoad = makeSUT()
         let feed = uniqueImageFeed().models
 
-        let saveExp = XCTestExpectation(description: "Waiting for save completion")
-        sutToPerformSave.save(feed) { saveError in
-            XCTAssertNil(saveError, "Expected to save feed successfully, but failed instead.")
-            saveExp.fulfill()
-        }
-        wait(for: [saveExp], timeout: 1.0)
+        save(feed, with: sutToPerformSave)
 
         expect(sutToPerformLoad, toLoad: feed)
     }
-    
+
     func test_save_overridesItemsSavedOnASeparateInstance() {
         let sutToPerformFirstSave = makeSUT()
         let sutToPerformLastSave = makeSUT()
@@ -40,19 +35,8 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
         let firstFeed = uniqueImageFeed().models
         let latestFeed = uniqueImageFeed().models
 
-        let saveExp1 = XCTestExpectation(description: "Waiting for save completion")
-        sutToPerformFirstSave.save(firstFeed) { saveError in
-            XCTAssertNil(saveError, "Expected to save feed successfully, but failed instead.")
-            saveExp1.fulfill()
-        }
-        wait(for: [saveExp1], timeout: 1.0)
-        
-        let saveExp2 = XCTestExpectation(description: "Waiting for save completion")
-        sutToPerformLastSave.save(latestFeed) { saveError in
-            XCTAssertNil(saveError, "Expected to save feed successfully, but failed instead.")
-            saveExp2.fulfill()
-        }
-        wait(for: [saveExp2], timeout: 1.0)
+        save(firstFeed, with: sutToPerformFirstSave)
+        save(latestFeed, with: sutToPerformLastSave)
 
         expect(sutToPerformLoad, toLoad: latestFeed)
     }
@@ -88,22 +72,31 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
     private func deleteStoreArtifacts() {
         try? FileManager.default.removeItem(at: testSpecificStoreURL())
     }
-    
+
     private func expect(_ sut: LocalFeedLoader, toLoad expectedFeed: [FeedImage], file: StaticString = #filePath, line: UInt = #line) {
         let exp = XCTestExpectation(description: "Waiting for load completion")
-        
+
         sut.load { result in
             switch result {
             case .success(let imageFeed):
                 XCTAssertEqual(imageFeed, expectedFeed, "Expected empty feed", file: file, line: line)
-                
+
             case .failure(let error):
                 XCTFail("Expected successful feed result, got \(error) instead", file: file, line: line)
             }
-            
+
             exp.fulfill()
         }
-        
+
         wait(for: [exp], timeout: 1.0)
+    }
+
+    private func save(_ feed: [FeedImage], with sut: LocalFeedLoader, file: StaticString = #filePath, line: UInt = #line) {
+        let saveExp = XCTestExpectation(description: "Waiting for save completion")
+        sut.save(feed) { saveError in
+            XCTAssertNil(saveError, "Expected to save feed successfully, but failed instead.")
+            saveExp.fulfill()
+        }
+        wait(for: [saveExp], timeout: 1.0)
     }
 }
