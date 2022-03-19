@@ -12,21 +12,8 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
 
     func test_load_deliversNoItemsOnEmptyCache() {
         let sut = makeSUT()
-        let exp = XCTestExpectation(description: "Waiting for load completion")
-
-        sut.load { result in
-            switch result {
-            case .success(let imageFeed):
-                XCTAssertEqual(imageFeed, [], "Expected empty feed")
-
-            case .failure(let error):
-                XCTFail("Expected successful feed result, got \(error) instead")
-            }
-
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
+        
+        expect(sut, toLoad: [])
     }
 
     // MARK: - Helpers
@@ -43,18 +30,7 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
         }
         wait(for: [saveExp], timeout: 1.0)
 
-        let loadExp = XCTestExpectation(description: "Waiting for load completion")
-        sutToPerformLoad.load { result in
-            switch result {
-            case let .success(imageFeed):
-                XCTAssertEqual(imageFeed, feed)
-
-            case let .failure(error):
-                XCTFail("Expected successful feed result, got \(error) instead")
-            }
-            loadExp.fulfill()
-        }
-        wait(for: [loadExp], timeout: 1.0)
+        expect(sutToPerformLoad, toLoad: feed)
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> LocalFeedLoader {
@@ -87,5 +63,23 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
 
     private func deleteStoreArtifacts() {
         try? FileManager.default.removeItem(at: testSpecificStoreURL())
+    }
+    
+    private func expect(_ sut: LocalFeedLoader, toLoad expectedFeed: [FeedImage], file: StaticString = #filePath, line: UInt = #line) {
+        let exp = XCTestExpectation(description: "Waiting for load completion")
+        
+        sut.load { result in
+            switch result {
+            case .success(let imageFeed):
+                XCTAssertEqual(imageFeed, expectedFeed, "Expected empty feed", file: file, line: line)
+                
+            case .failure(let error):
+                XCTFail("Expected successful feed result, got \(error) instead", file: file, line: line)
+            }
+            
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 1.0)
     }
 }
