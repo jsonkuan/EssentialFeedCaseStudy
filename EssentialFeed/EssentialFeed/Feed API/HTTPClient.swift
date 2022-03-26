@@ -1,5 +1,6 @@
 public protocol HTTPClient {
-    func get(from url: URL, _ completion: @escaping (HTTPClientResult) -> Void)
+    typealias Result = Swift.Result<(Data, HTTPURLResponse), Error>
+
+    func get(from url: URL, _ completion: @escaping (Result) -> Void)
 }
 
-public typealias HTTPClientResult = Result<(Data, HTTPURLResponse), Error>
