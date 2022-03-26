@@ -1,7 +1,8 @@
-public enum RetrieveCachedFeedResult {
+public typealias RetrieveCachedFeedResult = Result<CachedResult, Error>
+    
+public enum CachedResult {
     case empty
     case found(feed: [LocalFeedImage], timestamp: Date)
-    case failure(Error)
 }
 
 public protocol FeedStore {
