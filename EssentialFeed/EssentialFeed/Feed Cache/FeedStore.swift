@@ -1,4 +1,4 @@
-public struct CachedResult: Equatable {
+public struct CachedFeed: Equatable {
     public let feed: [LocalFeedImage]
     public let timestamp: Date
     
@@ -13,7 +13,7 @@ public protocol FeedStore {
     typealias DeletionCompletion = (Error?) -> Void
 
     typealias RetrievalCompletion = (RetrievalResult) -> Void
-    typealias RetrievalResult = Result<CachedResult?, Error>
+    typealias RetrievalResult = Result<CachedFeed?, Error>
 
     func deleteCachedFeed(_ completion: @escaping DeletionCompletion)
     func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion)
