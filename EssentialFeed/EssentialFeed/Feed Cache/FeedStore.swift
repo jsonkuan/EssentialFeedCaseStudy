@@ -1,13 +1,5 @@
-public struct CachedFeed: Equatable {
-    public let feed: [LocalFeedImage]
-    public let timestamp: Date
+public typealias CachedFeed = (feed: [LocalFeedImage], timestamp: Date)
     
-    public init(feed: [LocalFeedImage], timestamp: Date) {
-        self.feed = feed
-        self.timestamp = timestamp
-    }
-}
-
 public protocol FeedStore {
     typealias InsertionCompletion = (Error?) -> Void
     typealias DeletionCompletion = (Error?) -> Void
