@@ -3,4 +3,3 @@ public protocol HTTPClient {
 
     func get(from url: URL, _ completion: @escaping (Result) -> Void)
 }
-
