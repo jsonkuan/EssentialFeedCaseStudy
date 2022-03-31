@@ -1,7 +1,7 @@
 import XCTest
 import EssentialFeed
 
-final class RemoteFeedLoaderTests: XCTestCase {
+final class LoadFromRemoteUseCaseTests: XCTestCase {
     func test_init_doesNotRequestDataFromURL() {
         let (_, client) = makeSUT()
 
@@ -114,16 +114,14 @@ final class RemoteFeedLoaderTests: XCTestCase {
     private func makeItem(id: UUID,
                           description: String? = nil,
                           location: String? = nil,
-                          image: URL) -> (model: FeedItem, json: [String: Any]) {
-        let item = FeedItem(id: id, description: description, location: location, imageUrl: image)
+                          image: URL) -> (model: FeedImage, json: [String: Any]) {
+        let item = FeedImage(id: id, description: description, location: location, url: image)
         let json = [
             "id": item.id.uuidString,
             "description": item.description,
             "location": item.location,
-            "image": item.imageUrl.absoluteString
-        ].reduce(into: [String: Any]()) { (acc, e) in
-            if let value = e.value { acc[e.key] = value }
-        }
+            "image": item.url.absoluteString
+        ].compactMapValues { $0 }
 
         return (item, json)
     }
@@ -161,13 +159,13 @@ final class RemoteFeedLoaderTests: XCTestCase {
 // MARK: - Spy
 
 private class HTTPClientSpy: HTTPClient {
-    var messages = [(url: URL, completion: (HTTPClientResult) -> Void)]()
+    var messages = [(url: URL, completion: (Result) -> Void)]()
 
     var requestedUrls: [URL] {
         messages.map { $0.url }
     }
 
-    func get(from url: URL, _ completion: @escaping (HTTPClientResult) -> Void) {
+    func get(from url: URL, _ completion: @escaping (HTTPClient.Result) -> Void) {
         messages.append((url, completion))
     }
 
@@ -182,6 +180,6 @@ private class HTTPClientSpy: HTTPClient {
             httpVersion: nil,
             headerFields: nil)!
 
-        messages[index].completion(.success(data, response))
+        messages[index].completion(.success((data, response)))
     }
 }

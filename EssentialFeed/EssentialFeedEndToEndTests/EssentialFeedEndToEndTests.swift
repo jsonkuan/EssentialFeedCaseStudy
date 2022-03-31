@@ -2,20 +2,19 @@ import XCTest
 import EssentialFeed
 
 final class EssentialFeedEndToEndTests: XCTestCase {
-
     func test_EndtoEndTestServerGETFeedResult_matchesFixedTestAccountdata() {
         switch getFeedResult() {
-        case let .success(items)?:
-            XCTAssertEqual(items.count, 8, "Expected 8 items in the test account feed")
-            XCTAssertEqual(items[0], expectedItem(at: 0))
-            XCTAssertEqual(items[1], expectedItem(at: 1))
-            XCTAssertEqual(items[2], expectedItem(at: 2))
-            XCTAssertEqual(items[2], expectedItem(at: 2))
-            XCTAssertEqual(items[3], expectedItem(at: 3))
-            XCTAssertEqual(items[4], expectedItem(at: 4))
-            XCTAssertEqual(items[5], expectedItem(at: 5))
-            XCTAssertEqual(items[6], expectedItem(at: 6))
-            XCTAssertEqual(items[7], expectedItem(at: 7))
+        case let .success(images)?:
+            XCTAssertEqual(images.count, 8, "Expected 8 feed images in the test account feed")
+            XCTAssertEqual(images[0], expectedFeedImage(at: 0))
+            XCTAssertEqual(images[1], expectedFeedImage(at: 1))
+            XCTAssertEqual(images[2], expectedFeedImage(at: 2))
+            XCTAssertEqual(images[2], expectedFeedImage(at: 2))
+            XCTAssertEqual(images[3], expectedFeedImage(at: 3))
+            XCTAssertEqual(images[4], expectedFeedImage(at: 4))
+            XCTAssertEqual(images[5], expectedFeedImage(at: 5))
+            XCTAssertEqual(images[6], expectedFeedImage(at: 6))
+            XCTAssertEqual(images[7], expectedFeedImage(at: 7))
 
         case let .failure(error)?:
             XCTFail("Expected to succeed, but failed with \(error)")
@@ -24,16 +23,16 @@ final class EssentialFeedEndToEndTests: XCTestCase {
         }
     }
 
-    private func getFeedResult(file: StaticString = #filePath, line: UInt = #line) -> LoadFeedResult? {
+    private func getFeedResult(file: StaticString = #filePath, line: UInt = #line) -> FeedLoader.Result? {
         let testServerURL = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")!
-        let client = URLSessionHTTPClient()
+        let client = URLSessionHTTPClient(session: URLSession.init(configuration: .ephemeral))
         let loader = RemoteFeedLoader(url: testServerURL, client: client)
-        
+
         trackForMemoryLeak(client, file: file, line: line)
         trackForMemoryLeak(loader, file: file, line: line)
 
         let exp = XCTestExpectation(description: "Wait for completion")
-        var receivedResult: LoadFeedResult?
+        var receivedResult: FeedLoader.Result?
         loader.load { result in
             receivedResult = result
             exp.fulfill()
@@ -45,12 +44,12 @@ final class EssentialFeedEndToEndTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func expectedItem(at index: Int) -> FeedItem {
-        return FeedItem(
+    private func expectedFeedImage(at index: Int) -> FeedImage {
+        return FeedImage(
             id: id(at: index),
             description: description(at: index),
             location: location(at: index),
-            imageUrl: imageURL(at: index)
+            url: imageURL(at: index)
         )
     }
 

@@ -1,8 +1,5 @@
 public protocol HTTPClient {
-    func get(from url: URL, _ completion: @escaping (HTTPClientResult) -> Void)
-}
+    typealias Result = Swift.Result<(Data, HTTPURLResponse), Error>
 
-public enum HTTPClientResult {
-    case success(Data, HTTPURLResponse)
-    case failure(Error)
+    func get(from url: URL, _ completion: @escaping (Result) -> Void)
 }
