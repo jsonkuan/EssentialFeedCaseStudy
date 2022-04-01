@@ -110,6 +110,7 @@
                                 <connections>
                                     <outlet property="descriptionLabel" destination="uuP-2T-iOr" id="Btd-Eb-1BH"/>
                                     <outlet property="feedImageView" destination="7Td-ht-fyr" id="Y74-2P-MdY"/>
+                                    <outlet property="imageContainer" destination="eJW-8D-Ruz" id="XRh-7R-yUe"/>
                                     <outlet property="locationContainer" destination="WUW-hZ-liR" id="Wuu-Js-uyF"/>
                                     <outlet property="locationLabel" destination="BJa-7r-UtO" id="S2L-Ue-wnR"/>
                                 </connections>
