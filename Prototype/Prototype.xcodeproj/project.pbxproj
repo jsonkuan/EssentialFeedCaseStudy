@@ -13,6 +13,7 @@
 		15124EB027F702340027278E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 15124EAF27F702340027278E /* Assets.xcassets */; };
 		15124EB327F702340027278E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 15124EB127F702340027278E /* LaunchScreen.storyboard */; };
 		15124EBB27F708B80027278E /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15124EBA27F708B80027278E /* FeedViewController.swift */; };
+		15124EBD27F70C0E0027278E /* FeedImageViewModel+prototypeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15124EBC27F70C0E0027278E /* FeedImageViewModel+prototypeData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		15124EB227F702340027278E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		15124EB427F702340027278E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		15124EBA27F708B80027278E /* FeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
+		15124EBC27F70C0E0027278E /* FeedImageViewModel+prototypeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeedImageViewModel+prototypeData.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,11 +60,12 @@
 			children = (
 				15124EA627F702330027278E /* AppDelegate.swift */,
 				15124EA827F702330027278E /* SceneDelegate.swift */,
+				15124EBA27F708B80027278E /* FeedViewController.swift */,
+				15124EBC27F70C0E0027278E /* FeedImageViewModel+prototypeData.swift */,
 				15124EAC27F702330027278E /* Main.storyboard */,
 				15124EAF27F702340027278E /* Assets.xcassets */,
 				15124EB127F702340027278E /* LaunchScreen.storyboard */,
 				15124EB427F702340027278E /* Info.plist */,
-				15124EBA27F708B80027278E /* FeedViewController.swift */,
 			);
 			path = Prototype;
 			sourceTree = "<group>";
@@ -141,6 +144,7 @@
 				15124EA727F702330027278E /* AppDelegate.swift in Sources */,
 				15124EBB27F708B80027278E /* FeedViewController.swift in Sources */,
 				15124EA927F702330027278E /* SceneDelegate.swift in Sources */,
+				15124EBD27F70C0E0027278E /* FeedImageViewModel+prototypeData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

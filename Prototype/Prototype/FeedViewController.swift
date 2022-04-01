@@ -1,5 +1,11 @@
 import UIKit
 
+struct FeedImageViewModel {
+    let imageName: String
+    let description: String?
+    let location: String?
+}
+
 class FeedViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         10
