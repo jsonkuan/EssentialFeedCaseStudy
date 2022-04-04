@@ -19,18 +19,18 @@ final public class FeedViewController: UITableViewController {
 
         load()
     }
-    
+
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         tableModel.count
     }
-    
+
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cellModel = tableModel[indexPath.row]
         let cell = FeedImageCell()
         cell.locationContainer.isHidden = cellModel.location == nil
         cell.locationLabel.text = cellModel.location
         cell.descriptionLabel.text = cellModel.description
-        
+
         return cell
     }
 
@@ -39,9 +39,15 @@ final public class FeedViewController: UITableViewController {
         refreshControl?.beginRefreshing()
 
         loader?.load() { [weak self] result in
-            self?.tableModel = (try? result.get()) ?? []
-            self?.tableView.reloadData()
-            
+            switch result {
+            case let .success(feed):
+                self?.tableModel = feed
+                self?.tableView.reloadData()
+
+            case .failure:
+                break
+            }
+
             self?.refreshControl?.endRefreshing()
         }
     }
