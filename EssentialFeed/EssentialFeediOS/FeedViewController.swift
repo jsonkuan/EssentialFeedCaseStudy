@@ -2,10 +2,13 @@ import UIKit
 import EssentialFeed
 
 public protocol FeedImageDataLoader {
-    func loadImageData(from url: URL)
+    typealias Result = Swift.Result<Data, Error>
+
+    func loadImageData(from url: URL, completion: @escaping (Result) -> Void)
+    func cancelImageLoadRequest(for url: URL)
 }
 
-final public class FeedViewController: UITableViewController {
+public final class FeedViewController: UITableViewController {
     private var feedLoader: FeedLoader?
     private var imageLoader: FeedImageDataLoader?
     var tableModel = [FeedImage]()
@@ -37,9 +40,14 @@ final public class FeedViewController: UITableViewController {
         cell.locationLabel.text = cellModel.location
         cell.descriptionLabel.text = cellModel.description
 
-        imageLoader?.loadImageData(from: cellModel.url)
+        imageLoader?.loadImageData(from: cellModel.url) { _ in }
 
         return cell
+    }
+
+    public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let model = tableModel[indexPath.row]
+        imageLoader?.cancelImageLoadRequest(for: model.url)
     }
 
     @objc
