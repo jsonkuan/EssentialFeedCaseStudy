@@ -1,16 +1,6 @@
 import UIKit
 import EssentialFeed
 
-public protocol FeedImageDataTask {
-    func cancel()
-}
-
-public protocol FeedImageDataLoader {
-    typealias Result = Swift.Result<Data, Error>
-
-    func loadImageData(from url: URL, completion: @escaping (Result) -> Void) -> FeedImageDataTask
-}
-
 public final class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching {
     private var feedLoader: FeedLoader?
     private var imageLoader: FeedImageDataLoader?
@@ -76,11 +66,11 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
             tasks[indexPath] = imageLoader?.loadImageData(from: cellModel.url, completion: { _ in })
         }
     }
-    
+
     public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
         indexPaths.forEach(cancelTask)
     }
-    
+
     private func cancelTask(forRowAt index: IndexPath) {
         tasks[index]?.cancel()
         tasks[index] = nil
