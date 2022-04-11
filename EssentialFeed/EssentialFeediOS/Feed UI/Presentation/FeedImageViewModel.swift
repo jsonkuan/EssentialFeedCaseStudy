@@ -1,6 +1,6 @@
 import EssentialFeed
 
-final class FeedImageCellViewModel<Image> {
+final class FeedImageViewModel<Image> {
     typealias Observer<T> = (T) -> Void
     typealias ImageTransformer = (Data) -> Image?
     
