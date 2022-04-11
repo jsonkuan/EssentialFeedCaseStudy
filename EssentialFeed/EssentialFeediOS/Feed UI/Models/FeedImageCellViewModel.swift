@@ -1,20 +1,22 @@
-import UIKit
 import EssentialFeed
 
-final class FeedImageCellViewModel {
+final class FeedImageCellViewModel<Image> {
     typealias Observer<T> = (T) -> Void
+    typealias ImageTransformer = (Data) -> Image?
     
     private let loader: FeedImageDataLoader
     private let model: FeedImage
     private var task: FeedImageDataTask?
+    private let imageTransformer: ImageTransformer
     
-    var onImageLoad: Observer<UIImage>?
+    var onImageLoad: Observer<Image>?
     var onImageLoadingStateChanged: Observer<Bool>?
     var onShouldRetryImageLoadStateChanged: Observer<Bool>?
     
-    init(model: FeedImage, loader: FeedImageDataLoader) {
+    init(model: FeedImage, loader: FeedImageDataLoader, imageTransformer: @escaping ImageTransformer) {
         self.model = model
         self.loader = loader
+        self.imageTransformer = imageTransformer
     }
     
     var isLocationVisible: Bool {
@@ -49,7 +51,7 @@ final class FeedImageCellViewModel {
     
     private func handle(_ result: FeedImageDataLoader.Result) {
         
-        if let image = (try? result.get()).flatMap(UIImage.init) {
+        if let image = (try? result.get()).flatMap(imageTransformer) {
             onImageLoad?(image)
         } else {
             onShouldRetryImageLoadStateChanged?(true)
