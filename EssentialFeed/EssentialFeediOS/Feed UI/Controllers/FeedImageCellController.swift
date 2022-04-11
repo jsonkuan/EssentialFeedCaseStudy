@@ -1,5 +1,4 @@
 import UIKit
-import EssentialFeed
 
 final class FeedImageCellController {
     let viewModel: FeedImageCellViewModel
@@ -8,38 +7,39 @@ final class FeedImageCellController {
         self.viewModel = viewModel
     }
     
+    func preload() {
+        viewModel.loadImageData()
+    }
+
+    func cancelLoad() {
+        viewModel.cancelImageDataLoad()
+    }
+    
     func view() -> UITableViewCell {
+        let cell = binded(FeedImageCell())
+        viewModel.loadImageData()
+        return cell
+    }
+     
+    private func binded(_ cell: FeedImageCell) -> FeedImageCell {
         let cell = FeedImageCell()
         cell.locationContainer.isHidden = viewModel.isLocationVisible
         cell.locationLabel.text = viewModel.location
         cell.descriptionLabel.text = viewModel.description
-        cell.feedImageView.image = nil
-        cell.feedImageRetryButton.isHidden = true
-        cell.feedImageContainer.startShimmering()
-
-        let loadImage = { [weak self, weak cell] in
-            guard let self = self else { return }
-
-            self.viewModel.task = self.viewModel.loader.loadImageData(from: self.viewModel.url) { [weak cell] result in
-                let data = try? result.get()
-                let image = data.map(UIImage.init) ?? nil
-                cell?.feedImageView.image = image
-                cell?.feedImageRetryButton.isHidden = (image != nil)
-                cell?.feedImageContainer.stopShimmering()
-            }
+        cell.onRetry = viewModel.loadImageData
+        
+        viewModel.onImageLoad = { [weak cell] image in
+            cell?.feedImageView.image = image
         }
-
-        cell.onRetry = loadImage
-        loadImage()
-
+        
+        viewModel.onImageLoadingStateChanged = { [weak cell] isLoading in
+            cell?.feedImageContainer.isShimmering = isLoading
+        }
+        
+        viewModel.onShouldRetryImageLoadStateChanged = { [weak cell] shouldRetry in
+            cell?.feedImageRetryButton.isHidden = !shouldRetry
+        }
+         
         return cell
-    }
-
-    func preload() {
-        viewModel.task = viewModel.loader.loadImageData(from: viewModel.url, completion: { _ in })
-    }
-
-    func cancelLoad() {
-        viewModel.task?.cancel()
     }
 }
