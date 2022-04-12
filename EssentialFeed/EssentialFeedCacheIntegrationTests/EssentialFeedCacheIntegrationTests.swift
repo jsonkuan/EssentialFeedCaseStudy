@@ -100,7 +100,7 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
             case .failure(let error):
                 XCTFail("Expected to save feed successfully, but failed with error: \(error)")
             }
-            
+
         }
         wait(for: [saveExp], timeout: 1.0)
     }
