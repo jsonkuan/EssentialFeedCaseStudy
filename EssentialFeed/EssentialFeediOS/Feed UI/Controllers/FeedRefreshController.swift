@@ -5,16 +5,11 @@ protocol FeedRefreshViewControllerDelegate {
 }
 
 final class FeedRefreshController: NSObject, FeedLoadingView {
-    private(set) lazy var view = loadView()
-    private let delegate: FeedRefreshViewControllerDelegate
+    @IBOutlet var refreshControl: UIRefreshControl!
+    weak var delegate: FeedRefreshViewControllerDelegate?
 
-    init(delegate: FeedRefreshViewControllerDelegate) {
-        self.delegate = delegate
-    }
-
-    @objc
-    func refresh() {
-        delegate.didRequestFeedRefresh()
+    @IBAction private func refresh() {
+        delegate?.didRequestFeedRefresh()
     }
     
     func display(viewModel: FeedLoadingViewModel) {
@@ -23,11 +18,5 @@ final class FeedRefreshController: NSObject, FeedLoadingView {
         } else {
             view.endRefreshing()
         }
-    }
-
-    private func loadView() -> UIRefreshControl {
-        let view = UIRefreshControl()
-        view.addTarget(self, action: #selector(refresh), for: .valueChanged)
-        return view
     }
 }
