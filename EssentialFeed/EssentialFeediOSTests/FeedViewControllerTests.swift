@@ -235,7 +235,7 @@ final class FeedViewControllerTests: XCTestCase {
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LoaderSpy, FeedViewController) {
         let loader = LoaderSpy()
-        let sut = FeedUIComposer.composeFeedWith(feedLoader: loader, imageLoader: loader)
+        let sut = FeedUIComposer.feedComposedWith(feedLoader: loader, imageLoader: loader)
         trackForMemoryLeak(sut, file: file, line: line)
         trackForMemoryLeak(loader, file: file, line: line)
 
@@ -299,7 +299,7 @@ final class FeedViewControllerTests: XCTestCase {
         private(set) var cancelledImageURLs = [URL]()
         private var imageRequests = [(url: URL, completion: (FeedImageDataLoader.Result) -> Void)]()
 
-        private struct TaskSpy: FeedImageDataTask {
+        private struct TaskSpy: FeedImageDataLoaderTask {
             let cancelCallBack: () -> Void
 
             func cancel() {
@@ -311,7 +311,7 @@ final class FeedViewControllerTests: XCTestCase {
             imageRequests.map { $0.url }
         }
 
-        func loadImageData(from url: URL, completion: @escaping (Result<Data, Error>) -> Void) -> FeedImageDataTask {
+        func loadImageData(from url: URL, completion: @escaping (Result<Data, Error>) -> Void) -> FeedImageDataLoaderTask {
             imageRequests.append((url, completion))
             return TaskSpy { [weak self] in self?.cancelledImageURLs.append(url) }
         }
