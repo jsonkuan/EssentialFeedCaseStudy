@@ -77,6 +77,9 @@
                                                             <buttonConfiguration key="configuration" style="plain" title="↻">
                                                                 <fontDescription key="titleFontDescription" type="system" pointSize="60"/>
                                                             </buttonConfiguration>
+                                                            <connections>
+                                                                <action selector="retryButtonTapped" destination="o6p-0T-rGX" eventType="touchUpInside" id="XYo-iK-9Rk"/>
+                                                            </connections>
                                                         </button>
                                                     </subviews>
                                                     <color key="backgroundColor" red="0.8901960784313725" green="0.8901960784313725" blue="0.8901960784313725" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -118,6 +121,14 @@
                                         <constraint firstItem="KHi-B9-WUE" firstAttribute="top" secondItem="rTP-0U-Q3P" secondAttribute="topMargin" priority="999" constant="6" id="gYk-06-5bJ"/>
                                     </constraints>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="descriptionLabel" destination="uuP-2T-iOr" id="R4Z-uz-8bA"/>
+                                    <outlet property="feedImageContainer" destination="eJW-8D-Ruz" id="5gA-2j-y8s"/>
+                                    <outlet property="feedImageRetryButton" destination="Wh9-q4-cvb" id="Rek-a8-a81"/>
+                                    <outlet property="feedImageView" destination="7Td-ht-fyr" id="TT5-Pr-w1L"/>
+                                    <outlet property="locationContainer" destination="WUW-hZ-liR" id="wMf-dE-4aR"/>
+                                    <outlet property="locationLabel" destination="BJa-7r-UtO" id="mAF-xD-g72"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
