@@ -13,6 +13,12 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
         }
     }
 
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        refresh()
+    }
+    
     @IBAction private func refresh() {
         delegate?.didRequestFeedRefresh()
     }
@@ -23,12 +29,6 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
         } else {
             refreshControl?.endRefreshing()
         }
-    }
-
-    public override func viewDidLoad() {
-        super.viewDidLoad()
-
-        refresh()
     }
 
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
