@@ -13,7 +13,12 @@ final class FeedPresenter {
     private let loadingView: FeedLoadingView
     
     static var title: String {
-        "My Feed"
+        NSLocalizedString(
+            "FEED_TITLE_KEY",
+            tableName: "Feed",
+            bundle: Bundle(for: FeedPresenter.self),
+            comment: "Title for navigation"
+        )
     }
     
     init(feedView: FeedView, loadingView: FeedLoadingView) {
