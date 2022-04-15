@@ -1,4 +1,3 @@
-
 import UIKit
 import EssentialFeed
 
@@ -10,7 +9,7 @@ public final class FeedUIComposer {
             feedLoader: MainQueueDispatchDecorator(decoratee: feedLoader)
         )
         
-        let feedController = FeedViewController.makeWith(
+        let feedController = makeFeedViewController(
             delegate: presentationAdapter,
             title: FeedPresenter.title
         )
@@ -21,10 +20,8 @@ public final class FeedUIComposer {
         
         return feedController
     }
-}
-
-extension FeedViewController {
-    static func makeWith(delegate: FeedViewControllerDelegate, title: String) -> FeedViewController {
+    
+    private static func makeFeedViewController(delegate: FeedViewControllerDelegate, title: String) -> FeedViewController {
         let bundle = Bundle(for: FeedViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
         let viewController = storyboard.instantiateInitialViewController() as! FeedViewController
