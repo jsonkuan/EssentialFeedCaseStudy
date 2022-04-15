@@ -239,6 +239,37 @@ final class FeedUIIntegrationTests: XCTestCase {
         sut.simulateFeedImageViewNotNearVisible(at: 1)
         XCTAssertEqual(loader.cancelledImageURLs, [image0.url, image1.url], "Expected second cancelled image URL request once second image is not near visible anymore")
     }
+    
+    func test_load_dispatchesOnMainQueue() {
+        let (loader, sut) = makeSUT()
+        sut.loadViewIfNeeded()
+        
+        let exp = XCTestExpectation(description: "Waiting for load on Main Thread")
+        DispatchQueue.global().async {
+            loader.completeFeedLoading(at: 0)
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
+    }
+    
+    func test_loadImageDataComplete_dispatchesFromBackgroundToMainThread() {
+        let (loader, sut) = makeSUT()
+        
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoading(with: [makeImage()])
+        _ = sut.simulateImageFeedViewVisible(at: 0)
+        
+        loader.completeImageLoading()
+        
+        let exp = XCTestExpectation(description: "Waiting for load on Main Thread")
+        DispatchQueue.global().async {
+            loader.completeImageLoading(with: self.anyImageData(), at: 0)
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
+    }
 
     // MARK: - Helpers
 
@@ -276,5 +307,9 @@ final class FeedUIIntegrationTests: XCTestCase {
         imageFeed.enumerated().forEach { index, image in
             assert(sut, hasConfiguredView: image, at: index, file: file, line: line)
         }
+    }
+        
+    private func anyImageData() -> Data {
+        UIImage.make(withColor: .red).pngData()!
     }
 }
