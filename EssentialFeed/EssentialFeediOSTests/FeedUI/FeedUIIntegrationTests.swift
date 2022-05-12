@@ -270,6 +270,14 @@ final class FeedUIIntegrationTests: XCTestCase {
 
         wait(for: [exp], timeout: 1.0)
     }
+    
+    func test_errorView_doesNotRenderErrorOnLoad() {
+        let (_, sut) = makeSUT()
+        
+        sut.loadViewIfNeeded()
+        
+        XCTAssertEqual(sut.errorMessage, nil)
+    }
 
     // MARK: - Helpers
 
