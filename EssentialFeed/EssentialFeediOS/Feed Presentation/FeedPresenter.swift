@@ -17,6 +17,12 @@ final class FeedPresenter {
     private let loadingView: FeedLoadingView
     private let errorView: FeedErrorView
     
+    init(feedView: FeedView, loadingView: FeedLoadingView, errorView: FeedErrorView) {
+        self.feedView = feedView
+        self.loadingView = loadingView
+        self.errorView = errorView
+    }
+    
     static var title: String {
         NSLocalizedString(
             "FEED_TITLE_KEY",
@@ -34,14 +40,8 @@ final class FeedPresenter {
             comment: "Error message displayed when we can't load the image feed from server")
     }
     
-    init(feedView: FeedView, loadingView: FeedLoadingView, errorView: FeedErrorView) {
-        self.feedView = feedView
-        self.loadingView = loadingView
-        self.errorView = errorView
-    }
-    
     func didStartLoadingFeed() {
-        errorView.display(FeedErrorViewModel(message: feedLoadError))
+        errorView.display(FeedErrorViewModel(message: nil))
         loadingView.display(FeedLoadingViewModel(isLoading: true))
     }
     
@@ -51,6 +51,7 @@ final class FeedPresenter {
     }
     
     func didFinishLoadingFeed(with error: Error) {
+        errorView.display(FeedErrorViewModel(message: feedLoadError))
         loadingView.display(FeedLoadingViewModel(isLoading: false))
     }
 }

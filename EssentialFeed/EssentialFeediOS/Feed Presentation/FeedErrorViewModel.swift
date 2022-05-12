@@ -1,3 +1,3 @@
-struct FeedErrorViewModel {
-    let message: String
+public struct FeedErrorViewModel {
+    public let message: String?
 }
