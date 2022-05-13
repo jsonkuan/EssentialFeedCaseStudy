@@ -10,26 +10,6 @@ public protocol FeedErrorView {
     func display(_ viewModel: FeedErrorViewModel)
 }
 
-public struct FeedViewModel {
-    public let feed: [FeedImage]
-}
-
-public struct FeedLoadingViewModel {
-    public let isLoading: Bool
-}
-
-public struct FeedErrorViewModel {
-    public let message: String?
-    
-    static var noError: Self {
-        FeedErrorViewModel(message: nil)
-    }
-    
-    static func error(message: String) -> Self {
-        FeedErrorViewModel(message: message)
-    }
-}
-
 public final class FeedPresenter {
     private let feedView: FeedView
     private let errorView: FeedErrorView
