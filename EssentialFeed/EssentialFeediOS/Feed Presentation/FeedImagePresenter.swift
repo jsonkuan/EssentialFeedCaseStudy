@@ -8,10 +8,11 @@ protocol FeedImageView {
 }
 
 final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == Image {
+    private struct InvalidaImageDataError: Error {}
     private let view: View
     private let imageTransformer: (Data) -> Image?
-
-    internal init(view: View, imageTransformer: @escaping (Data) -> Image?) {
+    
+    init(view: View, imageTransformer: @escaping (Data) -> Image?) {
         self.view = view
         self.imageTransformer = imageTransformer
     }
@@ -24,8 +25,6 @@ final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == I
             isLoading: true,
             shouldRetry: false))
     }
-
-    private struct InvalidImageDataError: Error {}
 
     func didFinishLoadingImageData(with data: Data, for model: FeedImage) {
         guard let image = imageTransformer(data) else {
