@@ -90,13 +90,24 @@ final class FeedImagePresenterTests: XCTestCase {
     func test_didFinishLoadingImageData_displaysErrorViewModelWithFailedImageTransformation() {
         let (sut, view) = makeSUT()
         let image = uniqueFeedImage()
-        let imageStub = NSImage.make()
-        let data = imageStub.tiffRepresentation!
+        let data = NSImage.emptyImage().tiffRepresentation!
     
         sut.didFinishLoadingImageData(with: data, for: image)
         
         XCTAssertEqual(view.messages, [
             .display(.errorViewModel(feedImage: image))
+        ])
+    }
+    
+    func test_didFinishLoadingImageData_displaysImageDataViewModel() {
+        let (sut, view) = makeSUT()
+        let image = uniqueFeedImage()
+        let data = NSImage.makeSymbolImage().tiffRepresentation!
+    
+        sut.didFinishLoadingImageData(with: data, for: image)
+        
+        XCTAssertEqual(view.messages, [
+            .display(.successViewModel(data: data, feedImage: image))
         ])
     }
     
@@ -174,7 +185,17 @@ private extension FeedImageViewModel {
 }
 
 extension NSImage {
-    static func make() -> NSImage {
+    static func emptyImage() -> NSImage {
         NSImage(size: NSSize(width: 1, height: 1))
+    }
+
+    static func makeSymbolImage() -> NSImage {
+        NSImage(systemSymbolName: "circle", accessibilityDescription: "An image for testing")!
+    }
+    
+    static func drawn() -> NSImage {
+        NSImage(size: NSSize(width: 1, height: 1), flipped: false) { rect in
+            fatalError("Not implemented")
+        }
     }
 }
