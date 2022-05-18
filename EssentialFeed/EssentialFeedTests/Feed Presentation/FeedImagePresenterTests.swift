@@ -1,7 +1,7 @@
 import XCTest
 import EssentialFeed
 
-struct FeedImageViewModel<Image> {
+struct FeedImageViewModel<Image: Equatable> {
     let description: String?
     let location: String?
     let image: Image?
@@ -13,17 +13,8 @@ struct FeedImageViewModel<Image> {
     }
 }
 
-extension FeedImageViewModel: Equatable {
-    static func == (lhs: FeedImageViewModel<Image>, rhs: FeedImageViewModel<Image>) -> Bool {
-        lhs.description == rhs.description &&
-        lhs.location == rhs.location &&
-        lhs.isLoading == rhs.isLoading &&
-        lhs.shouldRetry == rhs.shouldRetry
-    }
-}
-
 protocol FeedImageView {
-    associatedtype Image
+    associatedtype Image: Equatable
 
     func display(_ model: FeedImageViewModel<Image>)
 }
@@ -129,6 +120,17 @@ final class FeedImagePresenterTests: XCTestCase {
         
         enum Messages: Equatable {
             case display(_ viewModel: FeedImageViewModel<Image>)
+            
+            static func == (lhs: Self, rhs: Self) -> Bool {
+                switch (lhs, rhs) {
+                case let (.display(a), display(b)):
+                    return a.description == b.description
+                    && a.image == b.image
+                    && a.isLoading == b.isLoading
+                    && a.location == b.location
+                    && a.shouldRetry == b.shouldRetry
+                }
+            }
         }
         
         private(set) var messages = [Messages]()
