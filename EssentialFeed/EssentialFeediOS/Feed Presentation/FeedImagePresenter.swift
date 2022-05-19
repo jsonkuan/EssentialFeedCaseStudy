@@ -8,7 +8,7 @@ protocol FeedImageView {
 }
 
 final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == Image {
-    private struct InvalidaImageDataError: Error {}
+    private struct InvalidImageDataError: Error {}
     private let view: View
     private let imageTransformer: (Data) -> Image?
     
