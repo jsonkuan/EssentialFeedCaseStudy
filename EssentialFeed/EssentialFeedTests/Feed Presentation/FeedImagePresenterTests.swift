@@ -18,6 +18,7 @@ protocol FeedImageView {
 }
 
 final class FeedImagePresenter {
+    private struct InvalidImageDataError: Error {}
     private let view: FeedImageView
     private let imageTransformer: (Data) -> Any?
 
@@ -45,12 +46,16 @@ final class FeedImagePresenter {
     }
     
     func didFinishLoadingImageData(with data: Data, for model: FeedImage) {
+        guard let image = imageTransformer(data) else {
+            return didFinishLoadingImageData(with: InvalidImageDataError(), for: model)
+        }
+        
         view.display(FeedImageViewModel(
             description: model.description,
             location: model.location,
-            image: nil,
+            image: image,
             isLoading: false,
-            shouldRetry: true))
+            shouldRetry: false))
     }
 }
 
@@ -107,15 +112,37 @@ final class FeedImagePresenterTests: XCTestCase {
         XCTAssertNil(message?.image)
     }
     
+    func test_didFinishLoadingImageData_displaysImage() {
+        let (sut, view) = makeSUT(imageTransformer: success)
+        let image = uniqueFeedImage()
+        let data = anyData()
+        
+        sut.didFinishLoadingImageData(with: data, for: image)
+                
+        let message = view.messages.first
+        XCTAssertEqual(view.messages.count, 1)
+        XCTAssertEqual(message?.description, image.description)
+        XCTAssertEqual(message?.location, image.location)
+        XCTAssertEqual(message?.isLoading, false)
+        XCTAssertEqual(message?.shouldRetry, false)
+        XCTAssertNotNil(message?.image)
+    }
+    
     // MARK: -  Helpers
     
     private func anyData() -> Data {
         return Data("any data".utf8)
     }
     
+    private struct AnyImage: Equatable {}
+    
+    private var success: (Data) -> Any? {
+        { _ in AnyImage() }
+    }
+    
     private var fail: (Data) -> Any? {
-             return { _ in nil }
-         }
+        { _ in nil }
+    }
     
     private func makeSUT(imageTransformer: @escaping (Data) -> Any? = { _ in nil },
                          file: StaticString = #file,
