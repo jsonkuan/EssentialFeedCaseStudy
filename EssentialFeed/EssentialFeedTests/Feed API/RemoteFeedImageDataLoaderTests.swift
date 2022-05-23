@@ -61,14 +61,22 @@ final class RemoteFeedImageDataLoaderTests: XCTestCase {
     
     func test_loadImageDataFromUrl_deliversInvalidDataOnNon200Response() {
         let (sut, client) = makeSUT()
-        
         let samples = [199, 201, 300, 400, 500]
         
         samples.enumerated().forEach { index, element in
             expect(sut, toCompleteWith: failure(.invalidData), when: {
-                client.complete(withStatusCode: element, data: Data(), at: index)
+                client.complete(withStatusCode: element, data: anyData, at: index)
             })
         }
+    }
+    
+    func test_loadImageDataFromUrl_deliversInvalidDataOnEmptyData() {
+        let (sut, client) = makeSUT()
+        
+        expect(sut, toCompleteWith: failure(.invalidData), when: {
+            let emptyData = Data()
+            client.complete(withStatusCode: 200, data: emptyData)
+        })
     }
 
     // MARK: - Helpers
@@ -80,6 +88,11 @@ final class RemoteFeedImageDataLoaderTests: XCTestCase {
         trackForMemoryLeak(client)
         
         return (sut, client)
+    }
+    
+    
+    private var anyData: Data {
+        Data("fake".utf8)
     }
     
     private func failure(_ error: RemoteFeedImageDataLoader.Error) -> FeedImageDataLoader.Result {
