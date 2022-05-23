@@ -13,7 +13,9 @@ final class RemoteFeedImageDataLoader {
     }
     
     func loadImageData(from url: URL, completion: @escaping (FeedImageDataLoader.Result) -> Void) {
-        client.get(from: url) { result in
+        client.get(from: url) { [weak self] result in
+            guard self != nil else { return }
+            
             switch result {
             case let .failure(error):
                 completion(.failure(error))
@@ -91,7 +93,20 @@ final class RemoteFeedImageDataLoaderTests: XCTestCase {
             client.complete(withStatusCode: 200, data: nonEmptyData)
         })
     }
-
+    
+    func test_loadImageDataFromUrl_doesNotDeliverResultAfterDeallocation() {
+        let client = HTTPClientSpy()
+        var sut: RemoteFeedImageDataLoader? = RemoteFeedImageDataLoader(client: client)
+        
+        var capturedResults = [FeedImageDataLoader.Result]()
+        sut?.loadImageData(from: anyURL()) { capturedResults.append($0) }
+        
+        sut = nil
+        client.complete(withStatusCode: 200, data: anyData)
+        
+        XCTAssertTrue(capturedResults.isEmpty)
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (RemoteFeedImageDataLoader, HTTPClientSpy) {
@@ -113,30 +128,30 @@ final class RemoteFeedImageDataLoaderTests: XCTestCase {
     }
     
     private func expect(_ sut: RemoteFeedImageDataLoader, toCompleteWith expectedResult: FeedImageDataLoader.Result, when action: () -> Void, file: StaticString = #file, line: UInt = #line) {
-         let url = URL(string: "https://a-given-url.com")!
-         let exp = expectation(description: "Wait for load completion")
-
-         sut.loadImageData(from: url) { receivedResult in
-             switch (receivedResult, expectedResult) {
-             case let (.success(receivedData), .success(expectedData)):
-                 XCTAssertEqual(receivedData, expectedData, file: file, line: line)
-                 
-             case let (.failure(receivedError as RemoteFeedImageDataLoader.Error), .failure(expectedError as RemoteFeedImageDataLoader.Error)):
-                 XCTAssertEqual(receivedError, expectedError, file: file, line: line)
-                 
-             case let (.failure(receivedError as NSError), .failure(expectedError as NSError)):
-                 XCTAssertEqual(receivedError, expectedError, file: file, line: line)
-                 
-             default:
-                 XCTFail("Expected result \(expectedResult) got \(receivedResult) instead", file: file, line: line)
-             }
-
-             exp.fulfill()
-         }
-
-         action()
-
-         wait(for: [exp], timeout: 1.0)
+        let url = URL(string: "https://a-given-url.com")!
+        let exp = expectation(description: "Wait for load completion")
+        
+        sut.loadImageData(from: url) { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case let (.success(receivedData), .success(expectedData)):
+                XCTAssertEqual(receivedData, expectedData, file: file, line: line)
+                
+            case let (.failure(receivedError as RemoteFeedImageDataLoader.Error), .failure(expectedError as RemoteFeedImageDataLoader.Error)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+                
+            case let (.failure(receivedError as NSError), .failure(expectedError as NSError)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+                
+            default:
+                XCTFail("Expected result \(expectedResult) got \(receivedResult) instead", file: file, line: line)
+            }
+            
+            exp.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [exp], timeout: 1.0)
     }
     
     // MARK: - SPY
