@@ -1,7 +1,7 @@
 import XCTest
 import EssentialFeed
 
-final class EssentialFeedEndToEndTests: XCTestCase {
+final class EssentialFeedAPIEndToEndTests: XCTestCase {
     func test_EndtoEndTestServerGETFeedResult_matchesFixedTestAccountdata() {
         switch getFeedResult() {
         case let .success(images)?:
@@ -22,13 +22,24 @@ final class EssentialFeedEndToEndTests: XCTestCase {
             XCTFail("Expected to succeed, but failed")
         }
     }
+    
+    func test_endToEndTestServerGETFeedImageDataResult_matchesFixedTestAccountData() {
+        switch getFeedImageDataResult() {
+        case let .success(data)?:
+            XCTAssertFalse(data.isEmpty, "Expected non-empty image data")
+            
+        case let .failure(error)?:
+            XCTFail("Expected successful image data result, got \(error) instead")
+            
+        default:
+            XCTFail("Expected successful image data result, got no result instead")
+        }
+    }
 
     private func getFeedResult(file: StaticString = #filePath, line: UInt = #line) -> FeedLoader.Result? {
         let testServerURL = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")!
-        let client = URLSessionHTTPClient(session: URLSession.init(configuration: .ephemeral))
-        let loader = RemoteFeedLoader(url: testServerURL, client: client)
+        let loader = RemoteFeedLoader(url: testServerURL, client: ephemeralClient())
 
-        trackForMemoryLeak(client, file: file, line: line)
         trackForMemoryLeak(loader, file: file, line: line)
 
         let exp = XCTestExpectation(description: "Wait for completion")
@@ -42,8 +53,31 @@ final class EssentialFeedEndToEndTests: XCTestCase {
         return receivedResult
     }
 
-    // MARK: - Helpers
+    private func getFeedImageDataResult(file: StaticString = #file, line: UInt = #line) -> FeedImageDataLoader.Result? {
+        let loader = RemoteFeedImageDataLoader(client: ephemeralClient())
+        let testServerUrl = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed/v1/feed")!
+        trackForMemoryLeak(loader, file: file, line: line)
+        
+        let exp = expectation(description: "Wait for load completion")
+        
+        var receivedResult: FeedImageDataLoader.Result?
+        _ = loader.loadImageData(from: testServerUrl) { result in
+            receivedResult = result
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 5.0)
+        
+        return receivedResult
+    }
 
+    // MARK: - Helpers
+    
+    private func ephemeralClient(file: StaticString = #file, line: UInt = #line) -> HTTPClient {
+        let client = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
+        trackForMemoryLeak(client, file: file, line: line)
+        return client
+    }
+    
     private func expectedFeedImage(at index: Int) -> FeedImage {
         return FeedImage(
             id: id(at: index),
